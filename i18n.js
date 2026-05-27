@@ -143,7 +143,7 @@ const translations = {
         placeholder_search_quick: "Busca rápida...",
         canvas_cta: "VER RECEITA PASSO A PASSO ➔",
         fallback_prefixes: ["LEGÍTIMO", "DELICIOSO", "NOVA RECEITA", "PASSO A PASSO", "FÁCIL E RÁPIDO", "RECEITA DE", "APRENDA JÁ", "INCRÍVEL", "CASEIRO"],
-        fallback_card_titles: ["Receita Perfeita", "Segredo Revelado", "Derrete na Boca", "Fácil e Rápido", "O Melhor do Mundo", "Sem Erro", "Passo a Passo", "Super Cremoso", "Super Barato", "Faça e Venda"],
+        fallback_card_titles: ["Receita Perfeita", "Segredo Revelado", "Derrete na Boca", "Fácil e Rápido", "O Melhor do Mundo", "Faça e Não Erre", "Passo a Passo", "Super Cremoso", "Super Barato", "Faça e Venda"],
         fallback_subtitles: [
             "Receita Super Prática e Gostosa",
             "Fácil de Fazer e Super Encorpado",
@@ -315,7 +315,7 @@ const translations = {
         placeholder_search_quick: "Quick search...",
         canvas_cta: "SEE RECIPE STEP BY STEP ➔",
         fallback_prefixes: ["GENUINE", "DELICIOUS", "NEW RECIPE", "STEP BY STEP", "EASY & QUICK", "RECIPE FOR", "LEARN NOW", "AMAZING", "HOMEMADE"],
-        fallback_card_titles: ["Easy Recipe", "Secret Revealed", "Melts in Your Mouth", "Quick & Easy", "Best Ever", "Foolproof", "Step-by-Step", "Super Creamy", "Budget Friendly", "Make & Sell"],
+        fallback_card_titles: ["Easy Recipe", "Secret Revealed", "Melts in Your Mouth", "Quick & Easy", "Best Ever", "Make & Don't Fail", "Step-by-Step", "Super Creamy", "Budget Friendly", "Make & Sell"],
         fallback_subtitles: [
             "Super Practical and Tasty Recipe",
             "Easy to Make and Rich Texture",
@@ -487,7 +487,7 @@ const translations = {
         placeholder_search_quick: "Búsqueda rápida...",
         canvas_cta: "VER RECETA PASO A PASO ➔",
         fallback_prefixes: ["LEGÍTIMO", "DELICIOSO", "NUEVA RECETA", "PASO A PASO", "FÁCIL Y RÁPIDO", "RECETA DE", "APRENDE YA", "INCREÍBLE", "CASERO"],
-        fallback_card_titles: ["Receta Fácil", "Secreto Revelado", "Se Deshace en la Boca", "Rápido y Fácil", "El Mejor del Mundo", "Sin Errores", "Paso a Paso", "Súper Cremoso", "Muy Económico", "Hazlo y Vende"],
+        fallback_card_titles: ["Receta Fácil", "Secreto Revelado", "Se Deshace en la Boca", "Rápido y Fácil", "El Mejor del Mundo", "Hazlo y No Falles", "Paso a Paso", "Súper Cremoso", "Muy Económico", "Hazlo y Vende"],
         fallback_subtitles: [
             "Receta Súper Práctica y Sabrosa",
             "Fácil de Hacer y Súper Consistente",

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.3",
+  "version": "1.0.4",
   "releaseDate": "2026-05-27",
-  "changelog": "Geração de títulos persuasivos (CTR) no card branco e descrições com CTAs profissionais direcionando ao site."
+  "changelog": "Ajuste fino no gerador de títulos persuasivos com suporte a 'Faça e Não Erre'."
 }
