@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PinAutomate | Bulk Upload</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="../i18n.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#f8f9ff",
+                    "surface-tint": "#c0001b",
+                    "tertiary-container": "#1c6ee1",
+                    "secondary-fixed": "#dae2fd",
+                    "surface-container": "#e5eeff",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#5c647a",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface-dim": "#cbdbf5",
+                    "on-surface-variant": "#5e3f3c",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#fff7f6",
+                    "tertiary-fixed": "#d8e2ff",
+                    "on-primary-fixed-variant": "#930012",
+                    "on-background": "#0b1c30",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#ffdad7",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-container": "#f9f8ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary-container": "#e60023",
+                    "inverse-primary": "#ffb3ad",
+                    "primary": "#b7001a",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-primary": "#ffffff",
+                    "outline": "#936e6b",
+                    "surface-container-highest": "#d3e4fe",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container-low": "#eff4ff",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#dae2fd",
+                    "surface-variant": "#d3e4fe",
+                    "on-surface": "#0b1c30",
+                    "inverse-surface": "#213145",
+                    "outline-variant": "#e8bcb8",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "on-tertiary-fixed-variant": "#004395",
+                    "surface-container-high": "#dce9ff",
+                    "surface-bright": "#f8f9ff",
+                    "on-primary-fixed": "#410004",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#0056ba",
+                    "on-tertiary-fixed": "#001a42",
+                    "secondary": "#565e74"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px",
+                    "lg": "40px",
+                    "base": "8px",
+                    "xl": "64px",
+                    "margin-mobile": "16px",
+                    "md": "24px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "code-sm": ["JetBrains Mono"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "code-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #f8f9ff; color: #0b1c30; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d3e4fe; border-radius: 10px; }
+        .drag-zone-active { border-color: #b7001a; background-color: rgba(183, 0, 26, 0.05); }
+    </style>
+</head>
+<body class="font-body-md text-body-md overflow-hidden">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest shadow-sm flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Creator Hub</h1>
+<p class="text-secondary font-label-md">Visual Automation</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-container-high dark:hover:bg-surface-container" href="../dashboard_pinautomate/code.html">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md" data-i18n="nav_dashboard">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-primary font-bold border-r-4 border-primary bg-primary-container/10" href="../novo_lote_pinautomate/code.html">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add_box</span>
+<span class="font-label-md" data-i18n="nav_new_batch">New Batch</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-container-high dark:hover:bg-surface-container" href="../hist_rico_de_lotes_pinautomate/code.html">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-md" data-i18n="nav_batch_history">Batch History</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-container-high dark:hover:bg-surface-container" href="../configura_es_pinautomate/code.html">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md" data-i18n="nav_settings">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/30">
+<button class="w-full bg-primary-container text-on-primary-container font-label-md py-3 rounded-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">bolt</span>
+                <span data-i18n="nav_upgrade">Upgrade Plan</span>
+            </button>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-surface dark:bg-surface-dim shadow-sm flex justify-between items-center h-16 px-8">
+<div class="flex items-center gap-6">
+<span class="font-headline-md text-headline-md font-black text-primary dark:text-primary-fixed">PinAutomate</span>
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+<input id="search-input" class="w-full bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 font-body-sm focus:ring-2 focus:ring-primary/20" data-i18n-placeholder="search_assets" placeholder="Search assets..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest/50 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full text-on-surface-variant hover:bg-surface-container-highest/50 transition-colors">
+<span class="material-symbols-outlined">sync</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1DyGn--TWIkDf9mv6TIPXNKyFbERR_s7ONpFsqkeNpqbAHWwHcqkEH6uWt5Zi9uYBK_Yv4cMAv2Bk3q8fDavNmhQC5A-5HKKtjOmA2_hAmxWpZ-4lK6EeC4T7vHfQsbrEXoPTBSEH4CPaQSq0XRCvO3HiEqYhdqeV36YZh3At00ueeDg_FHntN5EHebu2hTaoplacR4qsJ3zElZgtZfB5B9wh8fMSf7tFVUtbh7IZj4oBCG2sqC0eXu1j7WKErJWXPjUfnp_wUXQ"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-64 pt-16 h-screen overflow-hidden flex flex-col md:flex-row">
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+<div class="max-w-5xl mx-auto space-y-8">
+<!-- Header Section -->
+<header>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2" data-i18n="nb_title">Bulk Image Upload</h2>
+<p class="text-secondary font-body-md" data-i18n="nb_subtitle">Create high-performance visual batches for Pinterest automation.</p>
+</header>
+<!-- Drag & Drop Zone -->
+<section class="relative group cursor-pointer transition-all duration-300 border-2 border-dashed border-outline-variant bg-surface-container-lowest rounded-2xl p-12 text-center hover:border-primary hover:bg-primary/5" id="drop-zone">
+<input class="absolute inset-0 opacity-0 cursor-pointer" id="file-input" multiple="" type="file"/>
+<div class="flex flex-col items-center gap-4">
+<div class="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined !text-4xl">cloud_upload</span>
+</div>
+<div>
+<p class="font-headline-md text-headline-md text-on-surface" data-i18n="nb_drag_drop">Drag &amp; Drop visual assets here</p>
+<p class="text-secondary font-body-sm mt-1" data-i18n="nb_formats">Supports JPG, PNG, WEBP and MP4 (Max 50 files per batch)</p>
+</div>
+<button class="mt-4 px-6 py-2 rounded-full bg-primary text-on-primary font-label-md" data-i18n="nb_browse">Browse Local Files</button>
+</div>
+</section>
+<!-- Grid of Thumbnail Previews -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-label-md text-on-surface uppercase tracking-wider"><span data-i18n="nb_queue_title">Fila de Envios</span> (<span id="queue-count">0 Imagens</span>)</h3>
+<button id="btn-clear-queue-text" class="text-primary font-label-md hover:underline" data-i18n="nb_clear_queue">Limpar Fila</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="preview-grid">
+    <div class="col-span-full py-8 text-center text-secondary font-body-md" data-i18n="nb_no_images">
+        Nenhuma imagem na fila. Faça upload acima para começar.
+    </div>
+</div>
+</section>
+</div>
+</div>
+<!-- Batch Settings Sidebar -->
+<aside class="w-full md:w-80 bg-surface-container shadow-2xl p-6 flex flex-col gap-6 z-10 overflow-y-auto">
+<h3 class="font-headline-md text-headline-md text-on-surface" data-i18n="nb_settings_title">Configurações do Lote</h3>
+<div class="space-y-4 flex-1">
+<div>
+<label class="block font-label-md text-on-surface mb-2" data-i18n="nb_batch_name">Nome do Lote</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">label</span>
+<input id="batch-name" class="w-full pl-10 pr-4 py-3 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest" type="text" data-i18n-placeholder="placeholder_batch_name" placeholder="Ex: Lote Quentão Verão"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-on-surface mb-2" data-i18n="nb_keyword">Palavra-Chave (IA)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">key</span>
+<input id="batch-keyword" class="w-full pl-10 pr-4 py-3 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest" type="text" data-i18n-placeholder="placeholder_batch_keyword" placeholder="Ex: Quentão Evangélico"/>
+</div>
+<p class="mt-2 text-secondary font-body-sm text-[11px]" data-i18n="nb_keyword_help">Orienta a IA na geração das variações de títulos.</p>
+</div>
+<div>
+<label class="block font-label-md text-on-surface mb-2" data-i18n="nb_dest_url">Link de Destino (Obrigatório)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">link</span>
+<input id="batch-dest-url" class="w-full pl-10 pr-4 py-3 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest" placeholder="https://descomplicandoreceitas.com.br/..." type="url"/>
+</div>
+</div>
+<div class="pt-2 border-t border-outline-variant/30">
+<label class="block font-label-md text-on-surface mb-2" data-i18n="nb_board">Pasta do Pinterest (Board)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">dashboard</span>
+<input id="batch-board" class="w-full pl-10 pr-4 py-3 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest" type="text" data-i18n-placeholder="placeholder_batch_board" placeholder="Ex: Receitas Festa Junina"/>
+</div>
+</div>
+<div class="pt-2 border-t border-outline-variant/30">
+<label class="block font-label-md text-on-surface mb-2" data-i18n="nb_base_url">URL Base das Imagens (Contabo)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">folder</span>
+<input id="batch-base-url" class="w-full pl-10 pr-4 py-3 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest" type="text" placeholder="https://descomplicandoreceitas.com.br/pins/"/>
+</div>
+</div>
+</div>
+<div class="space-y-3 pt-6 border-t border-outline-variant/50">
+<button id="btn-clear-queue" class="w-full bg-surface-container-highest text-on-surface-variant py-4 rounded-xl font-headline-md flex items-center justify-center gap-2 active:scale-95 transition-transform hover:bg-error-container hover:text-on-error-container">
+<span class="material-symbols-outlined">delete_sweep</span>
+                    <span data-i18n="nb_btn_clear">Limpar Fila</span>
+                </button>
+<button id="btn-generate-batch" class="w-full bg-primary text-on-primary py-4 rounded-xl font-headline-md shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-transform hover:brightness-110">
+<span class="material-symbols-outlined">download</span>
+                    <span data-i18n="nb_btn_generate">Gerar ZIP + CSV</span>
+                </button>
+<div class="flex items-center justify-center gap-2 mt-4">
+<div id="status-dot" class="w-2 h-2 rounded-full bg-secondary"></div>
+<span id="status-text" class="text-secondary font-label-md uppercase tracking-widest text-[10px]" data-i18n="nb_status_idle">Aguardando Imagens</span>
+</div>
+</div>
+</aside>
+</main>
+<!-- Edit Pin Modal -->
+<div id="edit-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-on-surface/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden flex flex-col md:flex-row border border-outline-variant/30">
+        <!-- Canvas Preview on Left -->
+        <div class="w-full md:w-1/2 p-6 bg-surface-container-low flex items-center justify-center">
+            <canvas id="modal-canvas" class="max-w-full max-h-[500px] shadow-md border rounded-lg bg-white"></canvas>
+        </div>
+        <!-- Form Fields on Right -->
+        <div class="w-full md:w-1/2 p-6 flex flex-col justify-between">
+            <div>
+                <h3 class="font-headline-md text-on-surface mb-4" data-i18n="modal_title">Editar Detalhes do Pin</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-label-md text-on-surface mb-1" data-i18n="modal_top1">Texto Topo Linha 1</label>
+                        <input id="edit-top-1" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary" type="text" maxlength="20"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-on-surface mb-1" data-i18n="modal_top2">Texto Topo Linha 2</label>
+                        <input id="edit-top-2" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary" type="text" maxlength="30"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-on-surface mb-1" data-i18n="modal_card_title">Título do Card Branco</label>
+                        <input id="edit-card-title" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary" type="text" maxlength="25"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-on-surface mb-1" data-i18n="modal_card_sub">Subtítulo do Card Branco</label>
+                        <input id="edit-card-sub" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary" type="text" maxlength="45"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-md text-on-surface mb-1" data-i18n="modal_desc">Descrição (Pinterest CSV)</label>
+                        <textarea id="edit-desc" rows="3" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary" maxlength="400"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end gap-3 border-t border-outline-variant/20 pt-4">
+                <button id="modal-close" class="px-4 py-2 border border-outline-variant text-secondary rounded-lg font-label-md hover:bg-surface-container transition-all" data-i18n="modal_btn_cancel">Cancelar</button>
+                <button id="modal-save" class="px-6 py-2 bg-primary text-white rounded-lg font-label-md hover:brightness-110 transition-all" data-i18n="modal_btn_save">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const previewGrid = document.getElementById('preview-grid');
+        const queueCount = document.getElementById('queue-count');
+        const btnClearQueue = document.getElementById('btn-clear-queue');
+        const btnGenerateBatch = document.getElementById('btn-generate-batch');
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+
+        // Form fields
+        const inputBatchName = document.getElementById('batch-name');
+        const inputKeyword = document.getElementById('batch-keyword');
+        const inputDestUrl = document.getElementById('batch-dest-url');
+        const inputBoard = document.getElementById('batch-board');
+        const inputBaseUrl = document.getElementById('batch-base-url');
+
+        // Modal fields
+        const editModal = document.getElementById('edit-modal');
+        const modalCanvas = document.getElementById('modal-canvas');
+        const editTop1 = document.getElementById('edit-top-1');
+        const editTop2 = document.getElementById('edit-top-2');
+        const editCardTitle = document.getElementById('edit-card-title');
+        const editCardSub = document.getElementById('edit-card-sub');
+        const editDesc = document.getElementById('edit-desc');
+        const btnModalClose = document.getElementById('modal-close');
+        const btnModalSave = document.getElementById('modal-save');
+
+        let uploadedImages = []; // List of Pin objects
+        let activeEditId = null;
+        let globalSettings = {};
+
+        // Load settings from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            globalSettings = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
+            inputDestUrl.value = globalSettings.default_dest_url || '';
+            inputBaseUrl.value = globalSettings.default_base_url || '';
+            inputBoard.value = globalSettings.default_board_name || '';
+            
+            // Set a default batch name
+            const today = new Date().toLocaleDateString();
+            const batchPrefix = t('nav_new_batch') || 'Lote';
+            inputBatchName.value = `${batchPrefix} - ${today}`;
+        });
+
+        // Prevent defaults for drag-and-drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.add('drag-zone-active');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => {
+                dropZone.classList.remove('drag-zone-active');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', e => {
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            handleFiles(files);
+        });
+
+        fileInput.addEventListener('change', () => {
+            const files = Array.from(fileInput.files).filter(f => f.type.startsWith('image/'));
+            handleFiles(files);
+        });
+
+        async function handleFiles(files) {
+            if (!files.length) return;
+            
+            const keyword = inputKeyword.value.trim();
+            if (!keyword) {
+                alert(t('alert_no_keyword'));
+                fileInput.value = '';
+                return;
+            }
+
+            updateStatus('processando', t('nb_status_processing'));
+
+            // Limit uploading to 200 files max
+            const allowedCount = Math.min(files.length, 200 - uploadedImages.length);
+            if (allowedCount < files.length) {
+                alert(t('alert_limit_reached'));
+            }
+
+            const filesToProcess = files.slice(0, allowedCount);
+            
+            // Generate text variations
+            let variations = [];
+            if (globalSettings.openai_api_key) {
+                try {
+                    variations = await generateAIVariations(keyword, filesToProcess.length);
+                } catch (err) {
+                    console.error('OpenAI error:', err);
+                    alert(t('alert_openai_error'));
+                    variations = filesToProcess.map((_, i) => generateFallbackData(keyword, uploadedImages.length + i));
+                }
+            } else {
+                variations = filesToProcess.map((_, i) => generateFallbackData(keyword, uploadedImages.length + i));
+            }
+
+            for (let i = 0; i < filesToProcess.length; i++) {
+                const file = filesToProcess[i];
+                const id = 'pin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const originalSrc = URL.createObjectURL(file);
+                const data = variations[i] || generateFallbackData(keyword, uploadedImages.length + i);
+
+                const pinObj = {
+                    id,
+                    file,
+                    originalSrc,
+                    ...data,
+                    imgElement: null,
+                    canvas: document.createElement('canvas')
+                };
+
+                // Wait for image element to load to draw the initial canvas
+                await new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        pinObj.imgElement = img;
+                        drawPinCanvas(img, pinObj, pinObj.canvas);
+                        resolve();
+                    };
+                    img.src = originalSrc;
+                });
+
+                uploadedImages.push(pinObj);
+            }
+
+            renderQueue();
+            updateStatus('pronto', 'Imagens Prontas para Exportar');
+        }
+
+        // Call OpenAI API to generate variations in a single batch call
+        async function generateAIVariations(keyword, count) {
+            const apiKey = globalSettings.openai_api_key;
+            const url = `https://api.openai.com/v1/chat/completions`;
+            
+            const currentLang = localStorage.getItem('pinautomate_lang') || 'pt';
+            const langNames = {
+                pt: "Português (Brasil)",
+                en: "English",
+                es: "Español"
+            };
+            const targetLang = langNames[currentLang] || "Português (Brasil)";
+            
+            const prompt = `Dada a palavra-chave "${keyword}", gere exatamente ${count} variações criativas de títulos e descrições otimizados para Pins de Pinterest (sendo que cada item deve ter textos ligeiramente diferentes para evitar repetições).
+            IMPORTANTE: Todos os textos gerados (incluindo topLine1, topLine2, cardTitle, cardSubtitle, e description) DEVEM estar inteiramente no idioma ${targetLang}.
+            Retorne ESTRITAMENTE um JSON no seguinte formato (um objeto contendo uma chave "pins" que é uma matriz de objetos, sem formatação markdown adicional, sem blocos de código markdown, apenas o JSON bruto):
+            {
+              "pins": [
+                {
+                  "topLine1": "prefixo curto em maiúsculo no idioma correto (ex: LEGÍTIMO, NOVA RECEITA, PASSO A PASSO, GENUINE, NEW RECIPE, PASO A PASO, etc)",
+                  "topLine2": "título principal em maiúsculo baseado na palavra-chave (máx 30 caracteres)",
+                  "cardTitle": "título curto e chamativo para o card central (máx 25 caracteres)",
+                  "cardSubtitle": "subtítulo explicativo e cativante para o card central (máx 45 caracteres)",
+                  "description": "descrição otimizada para busca e SEO do Pinterest, incluindo hashtags adequadas (máx 350 caracteres)"
+                }
+              ]
+            }`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('OpenAI API call failed');
+            }
+
+            const resData = await response.json();
+            const textResponse = resData.choices[0].message.content;
+            
+            const parsed = JSON.parse(textResponse.trim());
+            if (parsed && Array.isArray(parsed.pins)) {
+                return parsed.pins;
+            }
+            return [];
+        }
+
+        // Local template-based fallback generator
+        function generateFallbackData(keyword, index) {
+            const prefixes = t('fallback_prefixes');
+            const cardSubtitles = t('fallback_subtitles');
+            const descriptions = t('fallback_descriptions');
+
+            const prefix = prefixes[index % prefixes.length];
+            const sub = cardSubtitles[index % cardSubtitles.length];
+            const desc = descriptions[index % descriptions.length].replaceAll("{keyword}", keyword);
+            
+            let cardTitle = keyword;
+            if (cardTitle.length > 25) {
+                cardTitle = cardTitle.substring(0, 22) + "...";
+            }
+            
+            let topLine2 = keyword.toUpperCase();
+            if (topLine2.length > 30) {
+                topLine2 = topLine2.substring(0, 27) + "...";
+            }
+
+            return {
+                topLine1: prefix,
+                topLine2: topLine2,
+                cardTitle: cardTitle,
+                cardSubtitle: sub,
+                description: desc
+            };
+        }
+
+        // Draw Canvas Layout Overlay
+        function drawPinCanvas(img, pinObj, canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = 1000;
+            canvas.height = 1500;
+
+            // 1. Draw top banner
+            ctx.fillStyle = '#213145'; // Dark slate
+            ctx.fillRect(0, 0, 1000, 180);
+
+            // Draw top line 1
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 36px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pinObj.topLine1.toUpperCase(), 500, 55);
+
+            // Draw top line 2
+            ctx.fillStyle = '#e8bcb8'; // Outline gold accent
+            ctx.font = '900 48px Inter, sans-serif';
+            ctx.fillText(pinObj.topLine2.toUpperCase(), 500, 120);
+
+            // 2. Draw photo in the center
+            const imgWidth = img.naturalWidth || img.width;
+            const imgHeight = img.naturalHeight || img.height;
+            
+            const targetY = 180;
+            const targetHeight = 1070; // 1250 - 180
+            const targetWidth = 1000;
+            
+            const imgRatio = imgWidth / imgHeight;
+            const targetRatio = targetWidth / targetHeight;
+            
+            let sourceX = 0;
+            let sourceY = 0;
+            let sourceWidth = imgWidth;
+            let sourceHeight = imgHeight;
+            
+            if (imgRatio > targetRatio) {
+                sourceWidth = imgHeight * targetRatio;
+                sourceX = (imgWidth - sourceWidth) / 2;
+            } else {
+                sourceHeight = imgWidth / targetRatio;
+                sourceY = (imgHeight - sourceHeight) / 2;
+            }
+            
+            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, targetY, targetWidth, targetHeight);
+
+            // 3. Draw footer background
+            ctx.fillStyle = '#eff4ff'; // Light cream/blue container low
+            ctx.fillRect(0, 1250, 1000, 250);
+
+            // 4. Draw red CTA button in the footer
+            const btnWidth = 640;
+            const btnHeight = 70;
+            const btnX = (1000 - btnWidth) / 2;
+            const btnY = 1370;
+            const btnRadius = 12;
+            
+            ctx.fillStyle = '#b7001a'; // Pinterest Red primary
+            ctx.beginPath();
+            ctx.roundRect(btnX, btnY, btnWidth, btnHeight, btnRadius);
+            ctx.fill();
+            
+            // Draw button text
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 28px Inter, sans-serif';
+            ctx.fillText(t('canvas_cta'), 500, btnY + btnHeight/2 + 2);
+
+            // 5. Draw white overlay card in the lower middle
+            const cardWidth = 800;
+            const cardHeight = 330;
+            const cardX = (1000 - cardWidth) / 2;
+            const cardY = 930;
+            const cardRadius = 16;
+            
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.roundRect(cardX, cardY, cardWidth, cardHeight, cardRadius);
+            ctx.fill();
+            
+            // Gold/beige border
+            ctx.strokeStyle = '#e8bcb8';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Draw text inside white card
+            // Title
+            ctx.fillStyle = '#b7001a';
+            ctx.font = 'bold 54px Georgia, serif';
+            ctx.textAlign = 'center';
+            
+            const titleLines = wrapText(ctx, pinObj.cardTitle, 720);
+            let currentY = cardY + 100;
+            
+            titleLines.forEach(line => {
+                ctx.fillText(line, 500, currentY);
+                currentY += 65;
+            });
+
+            // Subtitle
+            ctx.fillStyle = '#0b1c30';
+            ctx.font = '600 32px Inter, sans-serif';
+            
+            const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 720);
+            currentY += 10;
+            subtitleLines.forEach(line => {
+                ctx.fillText(line, 500, currentY);
+                currentY += 45;
+            });
+        }
+
+        function wrapText(ctx, text, maxWidth) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = words[0] || '';
+
+            for (let i = 1; i < words.length; i++) {
+                const word = words[i];
+                const width = ctx.measureText(currentLine + " " + word).width;
+                if (width < maxWidth) {
+                    currentLine += " " + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+            return lines;
+        }
+
+        // Render queue in the UI grid
+        function renderQueue() {
+            previewGrid.innerHTML = '';
+            
+            const currentLang = localStorage.getItem('pinautomate_lang') || 'pt';
+            let imgText = 'Imagens';
+            if (currentLang === 'en') imgText = 'Images';
+            if (currentLang === 'es') imgText = 'Imágenes';
+            queueCount.innerText = `${uploadedImages.length} ${imgText}`;
+
+            if (uploadedImages.length === 0) {
+                previewGrid.innerHTML = `
+                    <div class="col-span-full py-8 text-center text-secondary font-body-md">
+                        ${t('nb_no_images')}
+                    </div>
+                `;
+                return;
+            }
+
+            uploadedImages.forEach(pinObj => {
+                const card = document.createElement('div');
+                card.className = "bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant group relative transition-transform hover:-translate-y-1";
+                
+                // Convert canvas cache to image src for lightweight DOM
+                const dataUrl = pinObj.canvas.toDataURL('image/jpeg', 0.85);
+                
+                card.innerHTML = `
+                    <img class="w-full aspect-[2/3] object-cover" src="${dataUrl}"/>
+                    <div class="absolute inset-0 bg-on-surface/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <button class="p-2 bg-white rounded-full text-error shadow-lg active:scale-95 btn-delete" data-id="${pinObj.id}">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                        <button class="p-2 bg-white rounded-full text-primary shadow-lg active:scale-95 btn-edit" data-id="${pinObj.id}">
+                            <span class="material-symbols-outlined">edit</span>
+                        </button>
+                    </div>
+                `;
+                previewGrid.appendChild(card);
+            });
+
+            // Connect button actions
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = btn.getAttribute('data-id');
+                    deletePin(id);
+                });
+            });
+
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = btn.getAttribute('data-id');
+                    openEditModal(id);
+                });
+            });
+        }
+
+        function deletePin(id) {
+            const index = uploadedImages.findIndex(p => p.id === id);
+            if (index > -1) {
+                URL.revokeObjectURL(uploadedImages[index].originalSrc);
+                uploadedImages.splice(index, 1);
+                renderQueue();
+                if (uploadedImages.length === 0) {
+                    updateStatus('aguardando', t('nb_status_idle'));
+                }
+            }
+        }
+
+        // Open editing modal
+        function openEditModal(id) {
+            const pinObj = uploadedImages.find(p => p.id === id);
+            if (!pinObj) return;
+
+            activeEditId = id;
+            editTop1.value = pinObj.topLine1;
+            editTop2.value = pinObj.topLine2;
+            editCardTitle.value = pinObj.cardTitle;
+            editCardSub.value = pinObj.cardSubtitle;
+            editDesc.value = pinObj.description;
+
+            // Draw to modal preview canvas
+            const modalCtx = modalCanvas.getContext('2d');
+            modalCanvas.width = 1000;
+            modalCanvas.height = 1500;
+            modalCtx.drawImage(pinObj.canvas, 0, 0);
+
+            // Show modal
+            editModal.classList.remove('hidden');
+
+            // Set up real-time live preview within modal
+            const inputs = [editTop1, editTop2, editCardTitle, editCardSub];
+            inputs.forEach(input => {
+                input.oninput = () => {
+                    const tempObj = {
+                        topLine1: editTop1.value,
+                        topLine2: editTop2.value,
+                        cardTitle: editCardTitle.value,
+                        cardSubtitle: editCardSub.value
+                    };
+                    drawPinCanvas(pinObj.imgElement, tempObj, modalCanvas);
+                };
+            });
+        }
+
+        // Save from modal
+        btnModalSave.addEventListener('click', () => {
+            const pinObj = uploadedImages.find(p => p.id === activeEditId);
+            if (pinObj) {
+                pinObj.topLine1 = editTop1.value;
+                pinObj.topLine2 = editTop2.value;
+                pinObj.cardTitle = editCardTitle.value;
+                pinObj.cardSubtitle = editCardSub.value;
+                pinObj.description = editDesc.value;
+
+                // Redraw actual cached canvas
+                drawPinCanvas(pinObj.imgElement, pinObj, pinObj.canvas);
+                renderQueue();
+            }
+            closeModal();
+        });
+
+        btnModalClose.addEventListener('click', closeModal);
+        function closeModal() {
+            editModal.classList.add('hidden');
+            activeEditId = null;
+        }
+
+        // Clear whole queue
+        btnClearQueue.addEventListener('click', () => {
+            if (uploadedImages.length === 0) return;
+            if (confirm(t('alert_clear_confirm'))) {
+                uploadedImages.forEach(p => URL.revokeObjectURL(p.originalSrc));
+                uploadedImages = [];
+                renderQueue();
+                updateStatus('aguardando', t('nb_status_idle'));
+                fileInput.value = '';
+            }
+        });
+
+        // Generate and Package ZIP + CSV
+        btnGenerateBatch.addEventListener('click', async () => {
+            if (uploadedImages.length === 0) {
+                alert(t('alert_empty_queue'));
+                return;
+            }
+
+            const batchName = inputBatchName.value.trim() || 'Lote de Pins';
+            const destUrl = inputDestUrl.value.trim();
+            const baseUrl = inputBaseUrl.value.trim();
+            const board = inputBoard.value.trim() || (localStorage.getItem('pinautomate_lang') === 'en' ? 'Main' : 'Principal');
+
+            if (!destUrl) {
+                alert(t('alert_invalid_dest'));
+                return;
+            }
+
+            updateStatus('processando', t('nb_status_packing'));
+
+            const zip = new JSZip();
+            const csvRows = [
+                ['Title', 'Description', 'Link', 'Media URL', 'Board'] // Header
+            ];
+
+            // Render and zip each canvas
+            for (let i = 0; i < uploadedImages.length; i++) {
+                const pinObj = uploadedImages[i];
+                const filename = `pin_${String(i + 1).padStart(2, '0')}.jpg`;
+                
+                // Get image blob from canvas
+                const blob = await new Promise(resolve => pinObj.canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                zip.file(filename, blob);
+
+                // Add to CSV rows
+                const mediaUrl = baseUrl ? (baseUrl.endsWith('/') ? baseUrl : baseUrl + '/') + filename : filename;
+                csvRows.push([
+                    pinObj.cardTitle,
+                    pinObj.description,
+                    destUrl,
+                    mediaUrl,
+                    board
+                ]);
+            }
+
+            // Save to ZIP
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            const zipUrl = URL.createObjectURL(zipBlob);
+            const zipLink = document.createElement('a');
+            zipLink.href = zipUrl;
+            zipLink.download = `${batchName.toLowerCase().replace(/\s+/g, '_')}_imagens.zip`;
+            zipLink.click();
+            URL.revokeObjectURL(zipUrl);
+
+            // Save to CSV
+            const csvContent = "\ufeff" + csvRows.map(row => 
+                row.map(val => `"${val.replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+            const csvBlob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const csvUrl = URL.createObjectURL(csvBlob);
+            const csvLink = document.createElement('a');
+            csvLink.href = csvUrl;
+            csvLink.download = `${batchName.toLowerCase().replace(/\s+/g, '_')}_pinterest.csv`;
+            csvLink.click();
+            URL.revokeObjectURL(csvUrl);
+
+            // Save batch to localStorage history
+            saveBatchToHistory(batchName, uploadedImages.length, destUrl, board);
+
+            updateStatus('pronto', t('nb_status_success'));
+            alert(t('alert_export_success'));
+        });
+
+        // Save batch run to localStorage
+        function saveBatchToHistory(name, count, destUrl, board) {
+            const history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
+            const newBatch = {
+                id: 'batch_' + Date.now(),
+                name: name,
+                date: new Date().toLocaleString('pt-BR'),
+                count: count,
+                destUrl: destUrl,
+                board: board,
+                status: 'Completed'
+            };
+            history.unshift(newBatch);
+            localStorage.setItem('pinautomate_history', JSON.stringify(history));
+        }
+
+        // Update status dot and label
+        function updateStatus(state, message) {
+            statusText.innerText = message;
+            statusDot.className = "w-2 h-2 rounded-full transition-colors";
+            
+            if (state === 'aguardando') {
+                statusDot.className = "w-2 h-2 rounded-full bg-secondary";
+            } else if (state === 'processando') {
+                statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+            } else if (state === 'pronto') {
+                statusDot.className = "w-2 h-2 rounded-full bg-green-500";
+            }
+        }
+
+        // Listen for language changes to dynamically redraw canvases and update UI
+        window.addEventListener('langChanged', () => {
+            const today = new Date().toLocaleDateString();
+            const currentBatchName = inputBatchName.value.trim();
+            if (currentBatchName.startsWith('Lote - ') || currentBatchName.startsWith('Batch - ') || currentBatchName.startsWith('Lote de Pins') || currentBatchName.startsWith('Pins Batch') || currentBatchName.startsWith('Novo Lote - ') || currentBatchName.startsWith('New Batch - ') || currentBatchName.startsWith('Nuevo Lote - ')) {
+                const batchPrefix = t('nav_new_batch') || 'Lote';
+                inputBatchName.value = `${batchPrefix} - ${today}`;
+            }
+
+            uploadedImages.forEach(pinObj => {
+                if (pinObj.imgElement) {
+                    drawPinCanvas(pinObj.imgElement, pinObj, pinObj.canvas);
+                }
+            });
+            renderQueue();
+            
+            // If the queue is empty, ensure the translated "empty queue" text shows up
+            if (uploadedImages.length === 0) {
+                updateStatus('aguardando', t('nb_status_idle'));
+            }
+        });
+    </script>
+</body></html>

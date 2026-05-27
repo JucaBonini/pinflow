@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings - PinAutomate</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="../i18n.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#f8f9ff",
+                    "surface-tint": "#c0001b",
+                    "tertiary-container": "#1c6ee1",
+                    "secondary-fixed": "#dae2fd",
+                    "surface-container": "#e5eeff",
+                    "error": "#ba1a1a",
+                    "on-secondary-container": "#5c647a",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface-dim": "#cbdbf5",
+                    "on-surface-variant": "#5e3f3c",
+                    "on-error": "#ffffff",
+                    "on-primary-container": "#fff7f6",
+                    "tertiary-fixed": "#d8e2ff",
+                    "on-primary-fixed-variant": "#930012",
+                    "on-background": "#0b1c30",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed": "#ffdad7",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-container": "#f9f8ff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "primary-container": "#e60023",
+                    "inverse-primary": "#ffb3ad",
+                    "primary": "#b7001a",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-primary": "#ffffff",
+                    "outline": "#936e6b",
+                    "surface-container-highest": "#d3e4fe",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "surface-container-low": "#eff4ff",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#dae2fd",
+                    "surface-variant": "#d3e4fe",
+                    "on-surface": "#0b1c30",
+                    "inverse-surface": "#213145",
+                    "outline-variant": "#e8bcb8",
+                    "primary-fixed-dim": "#ffb3ad",
+                    "on-tertiary-fixed-variant": "#004395",
+                    "surface-container-high": "#dce9ff",
+                    "surface-bright": "#f8f9ff",
+                    "on-primary-fixed": "#410004",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#0056ba",
+                    "on-tertiary-fixed": "#001a42",
+                    "secondary": "#565e74"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "4px",
+                    "margin-desktop": "48px",
+                    "gutter": "24px",
+                    "lg": "40px",
+                    "base": "8px",
+                    "xl": "64px",
+                    "margin-mobile": "16px",
+                    "md": "24px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-md": ["Inter"],
+                    "code-sm": ["JetBrains Mono"],
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "code-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f8f9ff;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        .card-shadow {
+            box-shadow: 0px 4px 12px rgba(15, 23, 42, 0.05);
+        }
+        .transition-standard {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-background">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-lowest shadow-sm flex flex-col py-6 px-4 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">Creator Hub</h1>
+<p class="font-label-md text-label-md text-secondary">Visual Automation</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="../dashboard_pinautomate/code.html">
+<span class="material-symbols-outlined">dashboard</span>
+                <span data-i18n="nav_dashboard">Dashboard</span>
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="../novo_lote_pinautomate/code.html">
+<span class="material-symbols-outlined">add_box</span>
+                <span data-i18n="nav_new_batch">New Batch</span>
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-secondary hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="../hist_rico_de_lotes_pinautomate/code.html">
+<span class="material-symbols-outlined">history</span>
+                <span data-i18n="nav_batch_history">Batch History</span>
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-primary-container/10 font-label-md text-label-md" href="../configura_es_pinautomate/code.html">
+<span class="material-symbols-outlined">settings</span>
+                <span data-i18n="nav_settings">Settings</span>
+            </a>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-label-md text-label-md hover:opacity-90 transition-standard active:scale-95">
+                <span data-i18n="nav_upgrade">Upgrade Plan</span>
+            </button>
+<div class="flex items-center gap-3 mt-6 pt-6 border-t border-outline-variant/30">
+<img alt="User Profile Avatar" class="w-10 h-10 rounded-full bg-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADWVtE6fT97O-QAQP1YB7GSSo0386W9N3wgCbSr65nN-bE2C4N87Pd0A9vo8y8EnHvWWfzSvvgNi4PQ3949-jP6nZqzR3FHIHCfjTFwlWLFk4hRUTGTkfjc7lCg3Hr4Y7bY9NjgGWYxXzqBmz2zzJqBdVusjqQauOpyvscFgWNvCSGTPhSSaNarNzk4dVHMOX2Ef8rgsfq_0Z8ES-RYUqtuqYUhofUcMB-0eVpH7qdqxwWJZORnUhW8Q0YvCDyYovA8A_yj5Fn8Sk"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-label-md truncate">Alex Rivera</p>
+<p class="text-[12px] text-secondary truncate">Pro Creator</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] z-40 bg-surface dark:bg-surface-dim shadow-sm flex justify-between items-center h-16 px-8 ml-64">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-black text-primary">PinAutomate</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary scale-90">search</span>
+<input id="search-input" class="bg-surface-container-low border-none rounded-full py-1.5 pl-10 pr-4 text-body-sm font-body-sm focus:ring-2 focus:ring-primary w-64 transition-standard" data-i18n-placeholder="placeholder_search_quick" placeholder="Quick search..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-surface-container-highest/50 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-secondary">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-surface-container-highest/50 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-secondary">sync</span>
+</button>
+<div class="h-8 w-[1px] bg-outline-variant/30 mx-2"></div>
+<img alt="User profile" class="w-8 h-8 rounded-full ring-2 ring-primary/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBi8-w0FhOIAj7VQELUQiZdtXohf539K5Ij211EVALymTKzZ35UVwuySdqRaju3J5m8TUxE_yif9ysnRvVCCPjZi_GF3l94y7wIk9YtvijAnLYq5N9TPtqhECLn_iHu_2LzYbc1we8JDfMekfHuz_WNB9OhCfL5AxPFF4l3zioYhWYS87aa3W4yx7-nr-eQ0SfeZLcKdPYt7Cfh6ZDtNP_U5IinA1_-T8l-i45-PdC_2-rjQRTmO58u-kuV5PigFLxcW0lbdlutfKU"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 pb-12 px-8 min-h-screen">
+<div class="max-w-6xl mx-auto">
+<div class="mb-10">
+<h2 class="font-headline-lg text-headline-lg text-on-background" data-i18n="settings_title">System Settings</h2>
+<p class="font-body-md text-body-md text-secondary" data-i18n="settings_subtitle">Manage your Pinterest automation ecosystem and profile preferences.</p>
+</div>
+<!-- Bento Layout for Settings -->
+<div class="bento-grid">
+<!-- Pinterest Integration - Primary Red Highlight -->
+<section class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-5">
+<span class="material-symbols-outlined text-[120px]">share</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary bg-primary-container/10 p-2 rounded-lg">link</span>
+<h3 class="font-headline-md text-headline-md">Pinterest Integration</h3>
+</div>
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-surface-container-low/50 p-6 rounded-xl border border-dashed border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm">
+<img alt="Pinterest Logo" class="w-10 h-10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjJVg4_D_SNEk-OdbtPJILmGsxUjKYz6st-Gtys8MXb_KrWr0k-M9q8OuEaN_mMohwaDUVKKFRBKewJVWgkFGk8-wxfnqUIbZA8kjM6xDKaKk-MvCaG99A3ZVqiwz5rVWOCn4_AgJgsVsWaVCCsMijic7dQLMzaJpdiQ2Cn_mjjCpoHHGybk4z9L6YLWLvfGRgLIJHnuL-9fiRCv2FElJj0cCuh0N7XKqbzsqmr_4_bZ24SfmKEcFNVCnsoif6442IxZFo_vw4jYg"/>
+</div>
+<div>
+<p class="font-label-md text-label-md">Visual_Studio_Creator</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="w-2 h-2 rounded-full bg-[#22c55e]"></span>
+<span class="text-[12px] font-label-md text-secondary">Live Connection</span>
+</div>
+</div>
+</div>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-2.5 rounded-lg font-label-md text-label-md hover:bg-error-container hover:text-on-error-container transition-standard">
+                                Disconnect Account
+                            </button>
+</div>
+<div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30">
+<p class="text-secondary font-label-md text-[12px] uppercase tracking-wider mb-1">API Status</p>
+<p class="font-label-md text-label-md">Authenticated (V5)</p>
+</div>
+<div class="p-4 rounded-xl bg-surface-container-low border border-outline-variant/30">
+<p class="text-secondary font-label-md text-[12px] uppercase tracking-wider mb-1">Last Sync</p>
+<p class="font-label-md text-label-md">14 minutes ago</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Subscription Status -->
+<section class="col-span-12 lg:col-span-4 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20 flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary">workspace_premium</span>
+<h3 class="font-headline-md text-headline-md">Plan Status</h3>
+</div>
+<div class="mb-6">
+<span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-[12px] font-bold uppercase tracking-widest">Professional</span>
+<p class="mt-4 font-body-md text-body-md text-secondary">Billed monthly at $29.00/mo. Next billing cycle on Nov 12.</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container rounded-xl p-4">
+<div class="flex justify-between mb-2">
+<span class="text-[12px] font-label-md text-secondary">Batch Limit</span>
+<span class="text-[12px] font-label-md text-on-surface">840/1000</span>
+</div>
+<div class="w-full h-1.5 bg-outline-variant/20 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 84%"></div>
+</div>
+</div>
+<button class="w-full bg-primary text-white py-3 rounded-lg font-label-md text-label-md hover:bg-surface-tint transition-standard shadow-lg shadow-primary/20">
+                            Upgrade to Agency
+                        </button>
+</div>
+</section>
+<!-- Default Batch Settings -->
+<section class="col-span-12 lg:col-span-7 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary">auto_mode</span>
+<h3 class="font-headline-md text-headline-md">Automation & API Defaults</h3>
+</div>
+<div class="space-y-6">
+<div>
+<label class="block font-label-md text-label-md mb-2 text-on-surface">OpenAI API Key (ChatGPT)</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">vpn_key</span>
+<input id="openai-api-key" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="password" placeholder="sk-proj-..."/>
+</div>
+<p class="mt-2 text-[12px] text-secondary">Used for generating creative title/subtitle variations client-side using GPT-4o-mini.</p>
+</div>
+<div>
+<label class="block font-label-md text-label-md mb-2 text-on-surface">Default Destination URL</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">link</span>
+<input id="default-dest-url" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="text" placeholder="https://descomplicandoreceitas.com.br/..."/>
+</div>
+<p class="mt-2 text-[12px] text-secondary">Default destination link for generated Pins.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block font-label-md text-label-md mb-2 text-on-surface">Image Base URL (Contabo)</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">folder</span>
+<input id="default-base-url" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="text" placeholder="https://descomplicandoreceitas.com.br/pins/lote1/"/>
+</div>
+<p class="mt-2 text-[12px] text-secondary">Prepended to filenames in the CSV.</p>
+</div>
+<div>
+<label class="block font-label-md text-label-md mb-2 text-on-surface">Default Pinterest Board</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">dashboard</span>
+<input id="default-board-name" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="text" data-i18n-placeholder="placeholder_batch_board" placeholder="e.g. Receitas"/>
+</div>
+<p class="mt-2 text-[12px] text-secondary" data-i18n="settings_board_desc">Pinterest Board name for CSV.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Profile Management -->
+<section class="col-span-12 lg:col-span-5 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-primary">person_outline</span>
+<h3 class="font-headline-md text-headline-md" data-i18n="settings_profile_security">Security &amp; Profile</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/30">
+<div class="relative">
+<img alt="Profile" class="w-16 h-16 rounded-2xl object-cover" data-alt="A professional, clean studio portrait of a modern creator in high-key lighting, emphasizing a minimal aesthetic with soft shadows and a neutral background. The lighting is sophisticated, focusing on detail and clarity in a light-mode color palette that feels fresh and tech-forward." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6zAEHspPlmJrLOUDzNlBnyVsPuhuxUAn1rCIbwGj8rL_AJiyuZl23Xke1ChgaK_ugDrqz-WyGAPoX4Xt-mQ1gchMxZdX93y4NrXZCAjLH0w-0G1mIYT7ZusAqsrbartqsVh-LEY_jMTxxIGWqdTwYUMUUTdAqlWPUaNPHfE06aDiQuuMy36bJs6tVz4A5VsJGsJCPGM0FKV36IyCPCnZcBN8aRQ8Sq0FTyJImZFxZv3NdDPVrwocvEW_2qfWII7zhWwucDa9ksXo"/>
+<button class="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-lg shadow-sm border border-outline-variant/30">
+<span class="material-symbols-outlined text-[16px] text-primary">edit</span>
+</button>
+</div>
+<div>
+<p class="font-label-md text-label-md">Alex Rivera</p>
+<p class="text-body-sm text-secondary">alex.rivera@design.com</p>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md mb-2 text-on-surface" data-i18n="settings_password">Current Password</label>
+<input class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 px-4 font-body-sm text-body-sm" placeholder="••••••••••••" type="password"/>
+</div>
+<div class="pt-2">
+<button class="w-full border border-outline-variant text-on-surface py-3 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-standard" data-i18n="settings_btn_password">
+                                Change Password
+                            </button>
+</div>
+<div class="pt-6 border-t border-outline-variant/30">
+<p class="text-[12px] font-label-md text-error mb-3 uppercase tracking-widest" data-i18n="settings_danger_zone">Danger Zone</p>
+<button class="text-error font-label-md text-label-md hover:underline" data-i18n="settings_deactivate">Deactivate account</button>
+</div>
+</div>
+</section>
+<!-- Git Repository & Updates Settings -->
+<section class="col-span-12 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20">
+    <div class="flex items-center gap-3 mb-6">
+        <span class="material-symbols-outlined text-primary">terminal</span>
+        <h3 class="font-headline-md text-headline-md" data-i18n="settings_git_title">Versionamento e Atualização</h3>
+    </div>
+    <p class="mb-6 text-[13px] text-secondary" data-i18n="settings_git_desc">Configurações do repositório Git para verificar novas versões e atualizar o painel automaticamente.</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+            <label class="block font-label-md text-label-md mb-2 text-on-surface" data-i18n="settings_git_owner">Proprietário do GitHub (User)</label>
+            <div class="relative group">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">person</span>
+                <input id="git-owner" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="text" placeholder="Ex: JucaBonini"/>
+            </div>
+        </div>
+        <div>
+            <label class="block font-label-md text-label-md mb-2 text-on-surface" data-i18n="settings_git_repo">Nome do Repositório</label>
+            <div class="relative group">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">code</span>
+                <input id="git-repo" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="text" placeholder="Ex: pinflow"/>
+            </div>
+        </div>
+        <div>
+            <label class="block font-label-md text-label-md mb-2 text-on-surface" data-i18n="settings_git_branch">Branch (Padrão: main)</label>
+            <div class="relative group">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">schema</span>
+                <input id="git-branch" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="text" placeholder="Ex: main"/>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Help & Resources (Asymmetric Bottom Row) -->
+<section class="col-span-12 bg-surface-container text-on-surface rounded-[16px] p-6 flex flex-col md:flex-row items-center justify-between gap-6 border border-outline-variant/20">
+<div class="flex items-center gap-6">
+<div class="hidden md:flex -space-x-4">
+<div class="w-10 h-10 rounded-full border-2 border-surface-container bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[18px]">help</span>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-surface-container bg-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[18px]">menu_book</span>
+</div>
+</div>
+<div>
+<h4 class="font-label-md text-label-md" data-i18n="settings_need_help">Need help with your configurations?</h4>
+<p class="text-body-sm text-secondary" data-i18n="settings_support_desc">Our automation experts are available 24/7 for Enterprise customers.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md bg-white hover:bg-surface-container-low transition-standard" data-i18n="settings_view_docs">View Docs</button>
+<button class="px-6 py-2.5 rounded-lg bg-on-background text-white font-label-md text-label-md hover:opacity-90 transition-standard" data-i18n="settings_contact">Contact Support</button>
+</div>
+</section>
+</div>
+<!-- Footer Action Bar (Fixed-style behavior but inline) -->
+<div class="mt-12 flex justify-end items-center gap-4 pt-8 border-t border-outline-variant/30">
+<button class="px-8 py-3 rounded-xl font-label-md text-label-md text-secondary hover:text-on-surface transition-standard" data-i18n="settings_btn_discard">Discard Changes</button>
+<button class="px-10 py-3 rounded-xl bg-primary text-white font-headline-md text-[16px] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-standard" data-i18n="settings_btn_save">Save Configuration</button>
+</div>
+</div>
+</main>
+<script>
+        // Simple micro-interaction for toggle switches
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const dot = this.nextElementSibling.nextElementSibling;
+                const bg = this.nextElementSibling;
+                if (this.checked) {
+                    dot.classList.add('translate-x-4');
+                    bg.classList.remove('bg-secondary-container');
+                    bg.classList.add('bg-primary-container');
+                } else {
+                    dot.classList.remove('translate-x-4');
+                    bg.classList.add('bg-secondary-container');
+                    bg.classList.remove('bg-primary-container');
+                }
+            });
+        });
+
+        // Hover effects for the bento cards
+        document.querySelectorAll('section').forEach(section => {
+            section.addEventListener('mouseenter', () => {
+                section.style.transform = 'translateY(-2px)';
+                section.style.transition = 'transform 0.3s ease-out';
+            });
+            section.addEventListener('mouseleave', () => {
+                section.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Load settings from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const settings = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
+            document.getElementById('openai-api-key').value = settings.openai_api_key || '';
+            document.getElementById('default-dest-url').value = settings.default_dest_url || '';
+            document.getElementById('default-base-url').value = settings.default_base_url || '';
+            document.getElementById('default-board-name').value = settings.default_board_name || '';
+            document.getElementById('git-owner').value = settings.git_owner || 'JucaBonini';
+            document.getElementById('git-repo').value = settings.git_repo || 'pinflow';
+            document.getElementById('git-branch').value = settings.git_branch || 'main';
+        });
+
+        // Save settings to localStorage
+        document.querySelector('button[class*="bg-primary"]').addEventListener('click', () => {
+            const settings = {
+                openai_api_key: document.getElementById('openai-api-key').value.trim(),
+                default_dest_url: document.getElementById('default-dest-url').value.trim(),
+                default_base_url: document.getElementById('default-base-url').value.trim(),
+                default_board_name: document.getElementById('default-board-name').value.trim(),
+                git_owner: document.getElementById('git-owner').value.trim() || 'JucaBonini',
+                git_repo: document.getElementById('git-repo').value.trim() || 'pinflow',
+                git_branch: document.getElementById('git-branch').value.trim() || 'main',
+            };
+            localStorage.setItem('pinautomate_settings', JSON.stringify(settings));
+            alert(t('settings_saved_alert'));
+        });
+        
+        // Discard changes
+        document.querySelector('button[class*="text-secondary"]').addEventListener('click', () => {
+            if (confirm(t('settings_discard_confirm'))) {
+                window.location.reload();
+            }
+        });
+    </script>
+</body></html>
