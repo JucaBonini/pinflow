@@ -61,6 +61,11 @@ const translations = {
         nb_status_ready: "Imagens Prontas para Exportar",
         nb_status_packing: "Empacotando arquivos...",
         nb_status_success: "Exportação concluída com sucesso!",
+        csv_title: "Título",
+        csv_description: "Descrição",
+        csv_link: "Link",
+        csv_media_url: "URL da mídia",
+        csv_board: "Pasta do Pinterest",
 
         // Edit Modal
         modal_title: "Editar Detalhes do Pin",
@@ -227,6 +232,11 @@ const translations = {
         nb_status_ready: "Images Ready to Export",
         nb_status_packing: "Packing files...",
         nb_status_success: "Export completed successfully!",
+        csv_title: "Title",
+        csv_description: "Description",
+        csv_link: "Link",
+        csv_media_url: "Media URL",
+        csv_board: "Pinterest board",
 
         // Edit Modal
         modal_title: "Edit Pin Details",
@@ -393,6 +403,11 @@ const translations = {
         nb_status_ready: "Imágenes Listas para Exportar",
         nb_status_packing: "Empaquetando archivos...",
         nb_status_success: "¡Exportación completada con éxito!",
+        csv_title: "Título",
+        csv_description: "Descripción",
+        csv_link: "Enlace",
+        csv_media_url: "URL de la imagen",
+        csv_board: "Tablero",
 
         // Edit Modal
         modal_title: "Editar Detalles del Pin",

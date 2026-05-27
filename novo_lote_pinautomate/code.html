@@ -833,7 +833,13 @@
 
             const zip = new JSZip();
             const csvRows = [
-                ['Title', 'Description', 'Link', 'Media URL', 'Pinterest board'] // Header
+                [
+                    t('csv_title'),
+                    t('csv_description'),
+                    t('csv_link'),
+                    t('csv_media_url'),
+                    t('csv_board')
+                ] // Header
             ];
 
             // Render and zip each canvas

@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.2",
   "releaseDate": "2026-05-27",
-  "changelog": "Versão inicial com suporte multilíngue completo e atualizador integrado."
+  "changelog": "Suporte a cabeçalhos dinâmicos traduzidos (PT, EN, ES) para importação em massa no Pinterest CSV."
 }
