@@ -466,15 +466,20 @@
             
             const prompt = `Dada a palavra-chave "${keyword}", gere exatamente ${count} variações criativas de títulos e descrições otimizados para Pins de Pinterest (sendo que cada item deve ter textos ligeiramente diferentes para evitar repetições).
             IMPORTANTE: Todos os textos gerados (incluindo topLine1, topLine2, cardTitle, cardSubtitle, e description) DEVEM estar inteiramente no idioma ${targetLang}.
+            
+            Regras de Copywriting para cliques (CTR alto):
+            - No "cardTitle": Crie um título curto de alta conversão usando gatilhos mentais como 'O Segredo', 'Sem Erro', 'Super Cremoso', 'Derrete na Boca', 'Sem Forno', 'Pronto em Minutos', etc. NUNCA repita a palavra-chave original aqui, pois ela já estará no topLine2. Seja criativo e persuasivo para atrair o clique! (máx 25 caracteres)
+            - Na "description": Escreva um texto otimizado para SEO do Pinterest contendo a palavra-chave naturalmente. O texto DEVE obrigatoriamente terminar com uma chamada para ação (CTA) natural como "Veja a receita completa no site!" ou "Clique aqui para ver a receita completa no site!". Nunca use termos artificiais ou traduções literais robóticas como "Confira leitor" ou "Acesse o post". (máx 350 caracteres)
+            
             Retorne ESTRITAMENTE um JSON no seguinte formato (um objeto contendo uma chave "pins" que é uma matriz de objetos, sem formatação markdown adicional, sem blocos de código markdown, apenas o JSON bruto):
             {
               "pins": [
                 {
                   "topLine1": "prefixo curto em maiúsculo no idioma correto (ex: LEGÍTIMO, NOVA RECEITA, PASSO A PASSO, GENUINE, NEW RECIPE, PASO A PASO, etc)",
                   "topLine2": "título principal em maiúsculo baseado na palavra-chave (máx 30 caracteres)",
-                  "cardTitle": "título curto e chamativo para o card central (máx 25 caracteres)",
+                  "cardTitle": "título do card central focado em cliques (ex: O Segredo Revelado, Derrete na Boca, etc) (máx 25 caracteres)",
                   "cardSubtitle": "subtítulo explicativo e cativante para o card central (máx 45 caracteres)",
-                  "description": "descrição otimizada para busca e SEO do Pinterest, incluindo hashtags adequadas (máx 350 caracteres)"
+                  "description": "descrição otimizada que obrigatoriamente termina com a CTA direcionando para o site (máx 350 caracteres)"
                 }
               ]
             }`;
@@ -516,15 +521,12 @@
             const prefixes = t('fallback_prefixes');
             const cardSubtitles = t('fallback_subtitles');
             const descriptions = t('fallback_descriptions');
+            const cardTitles = t('fallback_card_titles');
 
             const prefix = prefixes[index % prefixes.length];
             const sub = cardSubtitles[index % cardSubtitles.length];
             const desc = descriptions[index % descriptions.length].replaceAll("{keyword}", keyword);
-            
-            let cardTitle = keyword;
-            if (cardTitle.length > 25) {
-                cardTitle = cardTitle.substring(0, 22) + "...";
-            }
+            const cardTitle = cardTitles[index % cardTitles.length];
             
             let topLine2 = keyword.toUpperCase();
             if (topLine2.length > 30) {

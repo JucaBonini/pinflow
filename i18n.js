@@ -143,6 +143,7 @@ const translations = {
         placeholder_search_quick: "Busca rápida...",
         canvas_cta: "VER RECEITA PASSO A PASSO ➔",
         fallback_prefixes: ["LEGÍTIMO", "DELICIOSO", "NOVA RECEITA", "PASSO A PASSO", "FÁCIL E RÁPIDO", "RECEITA DE", "APRENDA JÁ", "INCRÍVEL", "CASEIRO"],
+        fallback_card_titles: ["Receita Perfeita", "Segredo Revelado", "Derrete na Boca", "Fácil e Rápido", "O Melhor do Mundo", "Sem Erro", "Passo a Passo", "Super Cremoso", "Super Barato", "Faça e Venda"],
         fallback_subtitles: [
             "Receita Super Prática e Gostosa",
             "Fácil de Fazer e Super Encorpado",
@@ -155,11 +156,11 @@ const translations = {
             "Sem Complicação e Muito Rápido"
         ],
         fallback_descriptions: [
-            "Veja como preparar {keyword} de maneira simples e deliciosa. O segredo completo revelado passo a passo para você arrasar. Acesse agora!",
-            "Receita incrível de {keyword} que todo mundo vai amar. Ingredientes fáceis, preparo rápido e resultado perfeito. Confira leitor!",
-            "Procurando a melhor receita de {keyword}? Você acaba de encontrar! Um guia prático e detalhado sem erro. Clique para ver os detalhes.",
-            "Aprenda o passo a passo de como fazer {keyword} super gostoso e encorpado. Uma receita clássica que não falha. Acesse o post!",
-            "Dicas valiosas e receita definitiva de {keyword} para você testar hoje mesmo. Muito prático de preparar. Confira no blog."
+            "Veja como preparar {keyword} de maneira simples e deliciosa. O segredo completo revelado passo a passo para você arrasar. Veja a receita completa no site!",
+            "Receita incrível de {keyword} que todo mundo vai amar. Ingredientes fáceis, preparo rápido e resultado perfeito. Veja a receita completa no site!",
+            "Procurando a melhor receita de {keyword}? Você acaba de encontrar! Um guia prático e detalhado sem erro. Veja a receita completa no site!",
+            "Aprenda o passo a passo de como fazer {keyword} super gostoso e encorpado. Uma receita clássica que não falha. Acesse o site e veja a receita completa!",
+            "Dicas valiosas e receita definitiva de {keyword} para você testar hoje mesmo. Muito prático de preparar. Veja a receita completa no site!"
         ],
         update_available: "Nova versão disponível (v{version})!",
         update_btn: "Atualizar Agora",
@@ -312,11 +313,12 @@ const translations = {
         placeholder_batch_keyword: "e.g., Hot Mulled Wine",
         placeholder_batch_board: "e.g., Summer Recipes",
         placeholder_search_quick: "Quick search...",
-        canvas_cta: "VIEW RECIPE STEP BY STEP ➔",
+        canvas_cta: "SEE RECIPE STEP BY STEP ➔",
         fallback_prefixes: ["GENUINE", "DELICIOUS", "NEW RECIPE", "STEP BY STEP", "EASY & QUICK", "RECIPE FOR", "LEARN NOW", "AMAZING", "HOMEMADE"],
+        fallback_card_titles: ["Easy Recipe", "Secret Revealed", "Melts in Your Mouth", "Quick & Easy", "Best Ever", "Foolproof", "Step-by-Step", "Super Creamy", "Budget Friendly", "Make & Sell"],
         fallback_subtitles: [
             "Super Practical and Tasty Recipe",
-            "Easy to Make and Super Rich",
+            "Easy to Make and Rich Texture",
             "The Best Recipe for Your Day",
             "Secret Revealed Step by Step",
             "How to Make It Simple",
@@ -326,11 +328,11 @@ const translations = {
             "Hassle-Free and Very Fast"
         ],
         fallback_descriptions: [
-            "See how to prepare {keyword} in a simple and delicious way. The complete secret revealed step by step for you to succeed. Access now!",
-            "Amazing {keyword} recipe that everyone will love. Easy ingredients, quick preparation, and perfect results. Check it out!",
-            "Looking for the best {keyword} recipe? You just found it! A practical and detailed guide with no mistakes. Click to see details.",
-            "Learn step by step how to make super tasty and rich {keyword}. A classic recipe that never fails. Access the post!",
-            "Valuable tips and definitive recipe for {keyword} for you to try today. Very practical to prepare. Check it out on the blog."
+            "See how to prepare {keyword} in a simple and delicious way. The complete secret revealed step by step for you to succeed. See the full recipe on our website!",
+            "Amazing {keyword} recipe that everyone will love. Easy ingredients, quick preparation, and perfect results. See the full recipe on our website!",
+            "Looking for the best {keyword} recipe? You just found it! A practical and detailed guide with no mistakes. Click here to see the full recipe on our website!",
+            "Learn step by step how to make super tasty and rich {keyword}. A classic recipe that never fails. Visit our website for the full recipe!",
+            "Valuable tips and definitive recipe for {keyword} for you to try today. Very practical to prepare. See the full recipe on our website!"
         ],
         update_available: "New version available (v{version})!",
         update_btn: "Update Now",
@@ -485,6 +487,7 @@ const translations = {
         placeholder_search_quick: "Búsqueda rápida...",
         canvas_cta: "VER RECETA PASO A PASO ➔",
         fallback_prefixes: ["LEGÍTIMO", "DELICIOSO", "NUEVA RECETA", "PASO A PASO", "FÁCIL Y RÁPIDO", "RECETA DE", "APRENDE YA", "INCREÍBLE", "CASERO"],
+        fallback_card_titles: ["Receta Fácil", "Secreto Revelado", "Se Deshace en la Boca", "Rápido y Fácil", "El Mejor del Mundo", "Sin Errores", "Paso a Paso", "Súper Cremoso", "Muy Económico", "Hazlo y Vende"],
         fallback_subtitles: [
             "Receta Súper Práctica y Sabrosa",
             "Fácil de Hacer y Súper Consistente",
@@ -497,11 +500,11 @@ const translations = {
             "Sin Complicaciones y Muy Rápido"
         ],
         fallback_descriptions: [
-            "Mira cómo preparar {keyword} de manera sencilla y deliciosa. El secreto completo revelado paso a paso para que triunfes. ¡Accede ahora!",
-            "Receta increíble de {keyword} que a todos les encantará. Ingredientes fáciles, preparación rápida y resultado perfecto. ¡Pruébalo!",
-            "¿Buscas la mejor receta de {keyword}? ¡La acabas de encontrar! Una guía práctica y detallada sin errores. Haz clic para ver los detalles.",
-            "Aprende el paso a paso de cómo hacer {keyword} súper sabroso y consistente. Una receta clásica que no falla. ¡Accede al post!",
-            "Consejos valiosos y receta definitiva de {keyword} para que la pruebes hoy mismo. Muy práctica de preparar. Compruébalo en el blog."
+            "Mira cómo preparar {keyword} de manera sencilla y deliciosa. El secreto completo revelado paso a paso para que triunfes. ¡Ver la receta completa en el sitio web!",
+            "Receta increíble de {keyword} que a todos les encantará. Ingredientes fáciles, preparación rápida y resultado perfecto. ¡Ver la receta completa en el sitio web!",
+            "¿Buscas la mejor receta de {keyword}? ¡La acabas de encontrar! Una guía práctica y detallada sin errores. Haz clic para ver la receta completa en el sitio web.",
+            "Aprende el paso a paso de cómo hacer {keyword} súper sabroso y consistente. Una receta clásica que no falla. ¡Visita el sitio web y mira la receta completa!",
+            "Consejos valiosos y receta definitiva de {keyword} para que la pruebes hoy mismo. Muy práctica de preparar. ¡Ver la receta completa en el sitio web!"
         ],
         update_available: "¡Nueva versión disponible (v{version})!",
         update_btn: "Actualizar Ahora",

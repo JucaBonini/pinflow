@@ -1,5 +1,5 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "releaseDate": "2026-05-27",
-  "changelog": "Suporte a cabeçalhos dinâmicos traduzidos (PT, EN, ES) para importação em massa no Pinterest CSV."
+  "changelog": "Geração de títulos persuasivos (CTR) no card branco e descrições com CTAs profissionais direcionando ao site."
 }
