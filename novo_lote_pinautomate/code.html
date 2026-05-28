@@ -325,14 +325,14 @@
         const statusDot = document.getElementById('status-dot');
         const statusText = document.getElementById('status-text');
 
-        // Form fields
+        /* Form fields */
         const inputBatchName = document.getElementById('batch-name');
         const inputKeyword = document.getElementById('batch-keyword');
         const inputDestUrl = document.getElementById('batch-dest-url');
         const inputBoard = document.getElementById('batch-board');
         const inputBaseUrl = document.getElementById('batch-base-url');
 
-        // Modal fields
+        /* Modal fields */
         const editModal = document.getElementById('edit-modal');
         const modalCanvas = document.getElementById('modal-canvas');
         const editTop1 = document.getElementById('edit-top-1');
@@ -343,24 +343,24 @@
         const btnModalClose = document.getElementById('modal-close');
         const btnModalSave = document.getElementById('modal-save');
 
-        let uploadedImages = []; // List of Pin objects
+        let uploadedImages = []; /* List of Pin objects */
         let activeEditId = null;
         let globalSettings = {};
 
-        // Load settings from localStorage
+        /* Load settings from localStorage */
         document.addEventListener('DOMContentLoaded', () => {
             globalSettings = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
             inputDestUrl.value = globalSettings.default_dest_url || '';
             inputBaseUrl.value = globalSettings.default_base_url || '';
             inputBoard.value = globalSettings.default_board_name || '';
             
-            // Set a default batch name
+            /* Set a default batch name */
             const today = new Date().toLocaleDateString();
             const batchPrefix = t('nav_new_batch') || 'Lote';
             inputBatchName.value = `${batchPrefix} - ${today}`;
         });
 
-        // Prevent defaults for drag-and-drop
+        /* Prevent defaults for drag-and-drop */
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, e => {
                 e.preventDefault();
@@ -402,7 +402,7 @@
 
             updateStatus('processando', t('nb_status_processing'));
 
-            // Limit uploading to 200 files max
+            /* Limit uploading to 200 files max */
             const allowedCount = Math.min(files.length, 200 - uploadedImages.length);
             if (allowedCount < files.length) {
                 alert(t('alert_limit_reached'));
@@ -410,7 +410,7 @@
 
             const filesToProcess = files.slice(0, allowedCount);
             
-            // Generate text variations
+            /* Generate text variations */
             let variations = [];
             if (globalSettings.openai_api_key) {
                 try {
@@ -439,7 +439,7 @@
                     canvas: document.createElement('canvas')
                 };
 
-                // Wait for image element to load to draw the initial canvas
+                /* Wait for image element to load to draw the initial canvas */
                 await new Promise((resolve) => {
                     const img = new Image();
                     img.onload = () => {
@@ -457,7 +457,7 @@
             updateStatus('pronto', 'Imagens Prontas para Exportar');
         }
 
-        // Call OpenAI API to generate variations in a single batch call
+        /* Call OpenAI API to generate variations in a single batch call */
         async function generateAIVariations(keyword, count) {
             const apiKey = globalSettings.openai_api_key;
             const url = `https://api.openai.com/v1/chat/completions`;
@@ -522,7 +522,7 @@
             return [];
         }
 
-        // Local template-based fallback generator
+        /* Local template-based fallback generator */
         function generateFallbackData(keyword, index) {
             const prefixes = t('fallback_prefixes');
             const cardSubtitles = t('fallback_subtitles');
@@ -548,34 +548,34 @@
             };
         }
 
-        // Draw Canvas Layout Overlay
+        /* Draw Canvas Layout Overlay */
         function drawPinCanvas(img, pinObj, canvas) {
             const ctx = canvas.getContext('2d');
             canvas.width = 1000;
             canvas.height = 1500;
 
-            // 1. Draw top banner
-            ctx.fillStyle = '#213145'; // Dark slate
+            /* 1. Draw top banner */
+            ctx.fillStyle = '#213145'; /* Dark slate */
             ctx.fillRect(0, 0, 1000, 180);
 
-            // Draw top line 1
+            /* Draw top line 1 */
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 36px Inter, sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(pinObj.topLine1.toUpperCase(), 500, 55);
 
-            // Draw top line 2
-            ctx.fillStyle = '#e8bcb8'; // Outline gold accent
+            /* Draw top line 2 */
+            ctx.fillStyle = '#e8bcb8'; /* Outline gold accent */
             ctx.font = '900 48px Inter, sans-serif';
             ctx.fillText(pinObj.topLine2.toUpperCase(), 500, 120);
 
-            // 2. Draw photo in the center
+            /* 2. Draw photo in the center */
             const imgWidth = img.naturalWidth || img.width;
             const imgHeight = img.naturalHeight || img.height;
             
             const targetY = 180;
-            const targetHeight = 1070; // 1250 - 180
+            const targetHeight = 1070; /* 1250 - 180 */
             const targetWidth = 1000;
             
             const imgRatio = imgWidth / imgHeight;
@@ -596,28 +596,28 @@
             
             ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, targetY, targetWidth, targetHeight);
 
-            // 3. Draw footer background
-            ctx.fillStyle = '#eff4ff'; // Light cream/blue container low
+            /* 3. Draw footer background */
+            ctx.fillStyle = '#eff4ff'; /* Light cream/blue container low */
             ctx.fillRect(0, 1250, 1000, 250);
 
-            // 4. Draw red CTA button in the footer
+            /* 4. Draw red CTA button in the footer */
             const btnWidth = 640;
             const btnHeight = 70;
             const btnX = (1000 - btnWidth) / 2;
             const btnY = 1370;
             const btnRadius = 12;
             
-            ctx.fillStyle = '#b7001a'; // Pinterest Red primary
+            ctx.fillStyle = '#b7001a'; /* Pinterest Red primary */
             ctx.beginPath();
             ctx.roundRect(btnX, btnY, btnWidth, btnHeight, btnRadius);
             ctx.fill();
             
-            // Draw button text
+            /* Draw button text */
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 28px Inter, sans-serif';
             ctx.fillText(t('canvas_cta'), 500, btnY + btnHeight/2 + 2);
 
-            // 5. Draw white overlay card in the lower middle
+            /* 5. Draw white overlay card in the lower middle */
             const cardWidth = 800;
             const cardHeight = 330;
             const cardX = (1000 - cardWidth) / 2;
@@ -629,13 +629,13 @@
             ctx.roundRect(cardX, cardY, cardWidth, cardHeight, cardRadius);
             ctx.fill();
             
-            // Gold/beige border
+            /* Gold/beige border */
             ctx.strokeStyle = '#e8bcb8';
             ctx.lineWidth = 3;
             ctx.stroke();
 
-            // Draw text inside white card
-            // Title
+            /* Draw text inside white card */
+            /* Title */
             ctx.fillStyle = '#b7001a';
             ctx.font = 'bold 54px Georgia, serif';
             ctx.textAlign = 'center';
@@ -648,7 +648,7 @@
                 currentY += 65;
             });
 
-            // Subtitle
+            /* Subtitle */
             ctx.fillStyle = '#0b1c30';
             ctx.font = '600 32px Inter, sans-serif';
             
@@ -681,7 +681,7 @@
             return lines;
         }
 
-        // Render queue in the UI grid
+        /* Render queue in the UI grid */
         function renderQueue() {
             previewGrid.innerHTML = '';
             
@@ -704,7 +704,7 @@
                 const card = document.createElement('div');
                 card.className = "bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant group relative transition-transform hover:-translate-y-1";
                 
-                // Convert canvas cache to image src for lightweight DOM
+                /* Convert canvas cache to image src for lightweight DOM */
                 const dataUrl = pinObj.canvas.toDataURL('image/jpeg', 0.85);
                 
                 card.innerHTML = `
@@ -721,7 +721,7 @@
                 previewGrid.appendChild(card);
             });
 
-            // Connect button actions
+            /* Connect button actions */
             document.querySelectorAll('.btn-delete').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const id = btn.getAttribute('data-id');
@@ -749,7 +749,7 @@
             }
         }
 
-        // Open editing modal
+        /* Open editing modal */
         function openEditModal(id) {
             const pinObj = uploadedImages.find(p => p.id === id);
             if (!pinObj) return;
@@ -761,16 +761,16 @@
             editCardSub.value = pinObj.cardSubtitle;
             editDesc.value = pinObj.description;
 
-            // Draw to modal preview canvas
+            /* Draw to modal preview canvas */
             const modalCtx = modalCanvas.getContext('2d');
             modalCanvas.width = 1000;
             modalCanvas.height = 1500;
             modalCtx.drawImage(pinObj.canvas, 0, 0);
 
-            // Show modal
+            /* Show modal */
             editModal.classList.remove('hidden');
 
-            // Set up real-time live preview within modal
+            /* Set up real-time live preview within modal */
             const inputs = [editTop1, editTop2, editCardTitle, editCardSub];
             inputs.forEach(input => {
                 input.oninput = () => {
@@ -785,7 +785,7 @@
             });
         }
 
-        // Save from modal
+        /* Save from modal */
         btnModalSave.addEventListener('click', () => {
             const pinObj = uploadedImages.find(p => p.id === activeEditId);
             if (pinObj) {
@@ -795,7 +795,7 @@
                 pinObj.cardSubtitle = editCardSub.value;
                 pinObj.description = editDesc.value;
 
-                // Redraw actual cached canvas
+                /* Redraw actual cached canvas */
                 drawPinCanvas(pinObj.imgElement, pinObj, pinObj.canvas);
                 renderQueue();
             }
@@ -808,7 +808,7 @@
             activeEditId = null;
         }
 
-        // Clear whole queue
+        /* Clear whole queue */
         btnClearQueue.addEventListener('click', () => {
             if (uploadedImages.length === 0) return;
             if (confirm(t('alert_clear_confirm'))) {
@@ -820,7 +820,7 @@
             }
         });
 
-        // Generate and Package ZIP + CSV
+        /* Generate and Package ZIP + CSV */
         btnGenerateBatch.addEventListener('click', async () => {
             if (uploadedImages.length === 0) {
                 alert(t('alert_empty_queue'));
@@ -847,19 +847,19 @@
                     t('csv_link'),
                     t('csv_media_url'),
                     t('csv_board')
-                ] // Header
+                ] /* Header */
             ];
 
-            // Render and zip each canvas
+            /* Render and zip each canvas */
             for (let i = 0; i < uploadedImages.length; i++) {
                 const pinObj = uploadedImages[i];
                 const filename = `pin_${String(i + 1).padStart(2, '0')}.jpg`;
                 
-                // Get image blob from canvas
+                /* Get image blob from canvas */
                 const blob = await new Promise(resolve => pinObj.canvas.toBlob(resolve, 'image/jpeg', 0.9));
                 zip.file(filename, blob);
 
-                // Add to CSV rows
+                /* Add to CSV rows */
                 const mediaUrl = baseUrl ? (baseUrl.endsWith('/') ? baseUrl : baseUrl + '/') + filename : filename;
                 csvRows.push([
                     pinObj.cardTitle,
@@ -870,7 +870,7 @@
                 ]);
             }
 
-            // Save to ZIP
+            /* Save to ZIP */
             const zipBlob = await zip.generateAsync({ type: 'blob' });
             const zipUrl = URL.createObjectURL(zipBlob);
             const zipLink = document.createElement('a');
@@ -879,7 +879,7 @@
             zipLink.click();
             URL.revokeObjectURL(zipUrl);
 
-            // Save to CSV
+            /* Save to CSV */
             const csvContent = "\ufeff" + csvRows.map(row => 
                 row.map(val => `"${val.replace(/"/g, '""')}"`).join(',')
             ).join('\n');
@@ -891,14 +891,14 @@
             csvLink.click();
             URL.revokeObjectURL(csvUrl);
 
-            // Save batch to localStorage history
+            /* Save batch to localStorage history */
             saveBatchToHistory(batchName, uploadedImages.length, destUrl, board);
 
             updateStatus('pronto', t('nb_status_success'));
             alert(t('alert_export_success'));
         });
 
-        // Save batch run to localStorage
+        /* Save batch run to localStorage */
         function saveBatchToHistory(name, count, destUrl, board) {
             const history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
             const newBatch = {
@@ -914,7 +914,7 @@
             localStorage.setItem('pinautomate_history', JSON.stringify(history));
         }
 
-        // Update status dot and label
+        /* Update status dot and label */
         function updateStatus(state, message) {
             statusText.innerText = message;
             statusDot.className = "w-2 h-2 rounded-full transition-colors";
@@ -928,7 +928,7 @@
             }
         }
 
-        // Listen for language changes to dynamically redraw canvases and update UI
+        /* Listen for language changes to dynamically redraw canvases and update UI */
         window.addEventListener('langChanged', () => {
             const today = new Date().toLocaleDateString();
             const currentBatchName = inputBatchName.value.trim();
@@ -944,13 +944,13 @@
             });
             renderQueue();
             
-            // If the queue is empty, ensure the translated "empty queue" text shows up
+            /* If the queue is empty, ensure the translated "empty queue" text shows up */
             if (uploadedImages.length === 0) {
                 updateStatus('aguardando', t('nb_status_idle'));
             }
         });
 
-        // Folder selection batch page logic
+        /* Folder selection batch page logic */
         document.addEventListener('DOMContentLoaded', () => {
             const btnSelectFolder = document.getElementById('btn-select-folder');
             const dropdown = document.getElementById('folder-dropdown');
@@ -960,7 +960,7 @@
                 btnSelectFolder.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     
-                    // Show loading
+                    /* Show loading */
                     dropdown.innerHTML = '<div class="p-3 text-xs text-secondary font-label-md">Buscando pastas no servidor...</div>';
                     dropdown.classList.remove('hidden');
 
@@ -974,7 +974,7 @@
                             } else {
                                 dropdown.innerHTML = '';
                                 
-                                // Calculate server root URL
+                                /* Calculate server root URL */
                                 const segments = window.location.pathname.split('/');
                                 segments.pop();
                                 segments.pop();
@@ -992,7 +992,7 @@
                                         inputBaseUrl.value = fullUrl;
                                         dropdown.classList.add('hidden');
                                         
-                                        // Save to localStorage as default automatically
+                                        /* Save to localStorage as default automatically */
                                         const settings = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
                                         settings.default_base_url = fullUrl;
                                         localStorage.setItem('pinautomate_settings', JSON.stringify(settings));

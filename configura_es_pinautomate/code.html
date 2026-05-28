@@ -409,7 +409,7 @@
 </div>
 </main>
 <script>
-        // Simple micro-interaction for toggle switches
+        /* Simple micro-interaction for toggle switches */
         document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const dot = this.nextElementSibling.nextElementSibling;
@@ -426,7 +426,7 @@
             });
         });
 
-        // Hover effects for the bento cards
+        /* Hover effects for the bento cards */
         document.querySelectorAll('section').forEach(section => {
             section.addEventListener('mouseenter', () => {
                 section.style.transform = 'translateY(-2px)';
@@ -437,9 +437,9 @@
             });
         });
 
-        // Load settings from localStorage
+        /* Load settings from localStorage */
         document.addEventListener('DOMContentLoaded', () => {
-            // Load installed version dynamically from version.json
+            /* Load installed version dynamically from version.json */
             fetch('../version.json?t=' + Date.now())
                 .then(r => r.json())
                 .then(data => {
@@ -460,7 +460,7 @@
             document.getElementById('git-branch').value = settings.git_branch || 'main';
         });
 
-        // Save settings to localStorage
+        /* Save settings to localStorage */
         document.getElementById('btn-save-settings').addEventListener('click', () => {
             const settings = {
                 openai_api_key: document.getElementById('openai-api-key').value.trim(),
@@ -475,14 +475,14 @@
             alert(t('settings_saved_alert'));
         });
         
-        // Discard changes
+        /* Discard changes */
         document.getElementById('btn-discard-settings').addEventListener('click', () => {
             if (confirm(t('settings_discard_confirm'))) {
                 window.location.reload();
             }
         });
 
-        // Folder selection settings logic
+        /* Folder selection settings logic */
         document.addEventListener('DOMContentLoaded', () => {
             const btnSelectFolder = document.getElementById('btn-select-folder-settings');
             const dropdown = document.getElementById('folder-dropdown-settings');
@@ -492,7 +492,7 @@
                 btnSelectFolder.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     
-                    // Show loading
+                    /* Show loading */
                     dropdown.innerHTML = '<div class="p-3 text-xs text-secondary font-label-md">Buscando pastas no servidor...</div>';
                     dropdown.classList.remove('hidden');
 
@@ -506,7 +506,7 @@
                             } else {
                                 dropdown.innerHTML = '';
                                 
-                                // Calculate server root URL
+                                /* Calculate server root URL */
                                 const segments = window.location.pathname.split('/');
                                 segments.pop();
                                 segments.pop();

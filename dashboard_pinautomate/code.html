@@ -299,10 +299,11 @@
 </div>
 </footer>
 </main>
+<script>
         let installedVersion = "2.0.0";
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Load installed version from local version.json dynamically
+            /* Load installed version from local version.json dynamically */
             try {
                 const localRes = await fetch('../version.json?t=' + Date.now());
                 if (localRes.ok) {
@@ -315,7 +316,7 @@
                 console.error("Failed to load local version:", e);
             }
             
-            // Display installed version
+            /* Display installed version */
             const appVersionEl = document.getElementById('app-version');
             if (appVersionEl) {
                 appVersionEl.innerText = 'v' + installedVersion;
@@ -323,20 +324,20 @@
 
             const history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
             
-            // Calculate Stats
+            /* Calculate Stats */
             let totalPins = 0;
             let totalBatches = history.length;
             history.forEach(b => {
                 totalPins += parseInt(b.count) || 0;
             });
 
-            // Update stats text
+            /* Update stats text */
             document.getElementById('stat-total-pins').innerText = totalPins >= 1000 ? (totalPins/1000).toFixed(1) + 'k' : totalPins;
             document.getElementById('stat-active-batches').innerText = totalBatches;
             document.getElementById('stat-success-posts').innerText = totalPins >= 1000 ? (totalPins/1000).toFixed(1) + 'k' : totalPins;
             document.getElementById('stat-failed-posts').innerText = 0;
 
-            // Render Recent Activity List
+            /* Render Recent Activity List */
             const activityList = document.getElementById('recent-activity-list');
             activityList.innerHTML = '';
 
@@ -385,7 +386,7 @@
             if (!owner || !repo) return;
 
             try {
-                // Fetch remote version.json from GitHub raw with cache-busting query parameter
+                /* Fetch remote version.json from GitHub raw with cache-busting query parameter */
                 const response = await fetch(`https://raw.githubusercontent.com/${owner}/${repo}/${branch}/version.json?t=${Date.now()}`);
                 if (!response.ok) return;
 
@@ -393,11 +394,11 @@
                 if (remoteData && remoteData.version) {
                     const isNewer = compareVersions(remoteData.version, installedVersion);
                     if (isNewer) {
-                        // Display banner and set text
+                        /* Display banner and set text */
                         updateMessage.innerText = t('update_available').replace('{version}', remoteData.version);
                         updateBanner.classList.remove('hidden');
 
-                        // Set up update click listener
+                        /* Set up update click listener */
                         btnUpdateNow.addEventListener('click', () => triggerUpdate(owner, repo, branch));
                     }
                 }
@@ -406,7 +407,7 @@
             }
         }
 
-        // Semantic version comparison: returns true if v1 is newer than v2
+        /* Semantic version comparison: returns true if v1 is newer than v2 */
         function compareVersions(v1, v2) {
             const parts1 = v1.split('.').map(Number);
             const parts2 = v2.split('.').map(Number);
@@ -423,7 +424,7 @@
             const btnUpdateNow = document.getElementById('btn-update-now');
             const originalHTML = btnUpdateNow.innerHTML;
             
-            // Set update progress visual state
+            /* Set update progress visual state */
             btnUpdateNow.disabled = true;
             btnUpdateNow.innerHTML = `<span class="material-symbols-outlined text-xs animate-spin">sync</span> <span>${t('update_progress')}</span>`;
 

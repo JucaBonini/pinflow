@@ -262,7 +262,7 @@
         let history = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Load installed version dynamically from version.json
+            /* Load installed version dynamically from version.json */
             fetch('../version.json?t=' + Date.now())
                 .then(r => r.json())
                 .then(data => {
@@ -279,7 +279,7 @@
         function loadHistory() {
             history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
             
-            // Calculate Stats
+            /* Calculate Stats */
             let totalPins = 0;
             history.forEach(b => {
                 totalPins += parseInt(b.count) || 0;
@@ -347,7 +347,7 @@
                 tbody.appendChild(tr);
             });
 
-            // Connect delete buttons
+            /* Connect delete buttons */
             document.querySelectorAll('.btn-delete').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const id = btn.getAttribute('data-id');
@@ -355,7 +355,7 @@
                 });
             });
 
-            // Apply hover row transitions
+            /* Apply hover row transitions */
             document.querySelectorAll('tr').forEach(row => {
                 row.addEventListener('mouseenter', () => {
                     row.style.transform = 'translateX(4px)';
@@ -375,7 +375,7 @@
             }
         }
 
-        // Search
+        /* Search */
         const searchInput = document.getElementById('search-input');
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
