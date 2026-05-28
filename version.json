@@ -1,5 +1,5 @@
 {
-  "version": "1.0.4",
+  "version": "2.0.0",
   "releaseDate": "2026-05-27",
-  "changelog": "Ajuste fino no gerador de títulos persuasivos com suporte a 'Faça e Não Erre'."
+  "changelog": "Versão 2.0.0 - Adicionado seletor de pastas no servidor, correções no salvamento de configurações, cabeçalhos CSV dinâmicos localizados e melhorias na geração de títulos e copy."
 }

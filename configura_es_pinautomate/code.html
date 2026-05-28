@@ -155,12 +155,15 @@
 <button class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-label-md text-label-md hover:opacity-90 transition-standard active:scale-95">
                 <span data-i18n="nav_upgrade">Upgrade Plan</span>
             </button>
-<div class="flex items-center gap-3 mt-6 pt-6 border-t border-outline-variant/30">
+<div class="flex items-center justify-between gap-3 mt-6 pt-6 border-t border-outline-variant/30">
+<div class="flex items-center gap-3 overflow-hidden">
 <img alt="User Profile Avatar" class="w-10 h-10 rounded-full bg-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADWVtE6fT97O-QAQP1YB7GSSo0386W9N3wgCbSr65nN-bE2C4N87Pd0A9vo8y8EnHvWWfzSvvgNi4PQ3949-jP6nZqzR3FHIHCfjTFwlWLFk4hRUTGTkfjc7lCg3Hr4Y7bY9NjgGWYxXzqBmz2zzJqBdVusjqQauOpyvscFgWNvCSGTPhSSaNarNzk4dVHMOX2Ef8rgsfq_0Z8ES-RYUqtuqYUhofUcMB-0eVpH7qdqxwWJZORnUhW8Q0YvCDyYovA8A_yj5Fn8Sk"/>
 <div class="overflow-hidden">
 <p class="font-label-md text-label-md truncate">Alex Rivera</p>
 <p class="text-[12px] text-secondary truncate">Pro Creator</p>
 </div>
+</div>
+<span class="text-[10px] font-semibold text-secondary/50 shrink-0" id="app-version">...</span>
 </div>
 </div>
 </aside>
@@ -287,9 +290,15 @@
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 <div>
 <label class="block font-label-md text-label-md mb-2 text-on-surface">Image Base URL (Contabo)</label>
-<div class="relative group">
+<div class="relative group flex items-center">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary group-focus-within:text-primary transition-colors">folder</span>
-<input id="default-base-url" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-4 font-body-sm text-body-sm transition-standard" type="text" placeholder="https://descomplicandoreceitas.com.br/pins/lote1/"/>
+<input id="default-base-url" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 pl-10 pr-12 font-body-sm text-body-sm transition-standard" type="text" placeholder="https://descomplicandoreceitas.com.br/pins/lote1/"/>
+<button id="btn-select-folder-settings" type="button" class="absolute right-2 p-1.5 rounded-lg text-secondary hover:bg-surface-container hover:text-primary active:scale-95 transition-all flex items-center justify-center" title="Buscar pastas no servidor">
+    <span class="material-symbols-outlined text-md">folder_open</span>
+</button>
+<div id="folder-dropdown-settings" class="hidden absolute left-0 right-0 top-full mt-1 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg z-50 max-h-48 overflow-y-auto divide-y divide-outline-variant/10">
+    <!-- list items will be injected here via javascript -->
+</div>
 </div>
 <p class="mt-2 text-[12px] text-secondary">Prepended to filenames in the CSV.</p>
 </div>
@@ -338,8 +347,8 @@
 </div>
 </div>
 </section>
-<!-- Git Repository & Updates Settings -->
-<section class="col-span-12 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20">
+<!-- Git Repository & Updates Settings (Hidden from view) -->
+<section class="col-span-12 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20 hidden">
     <div class="flex items-center gap-3 mb-6">
         <span class="material-symbols-outlined text-primary">terminal</span>
         <h3 class="font-headline-md text-headline-md" data-i18n="settings_git_title">Versionamento e Atualização</h3>
@@ -394,8 +403,8 @@
 </div>
 <!-- Footer Action Bar (Fixed-style behavior but inline) -->
 <div class="mt-12 flex justify-end items-center gap-4 pt-8 border-t border-outline-variant/30">
-<button class="px-8 py-3 rounded-xl font-label-md text-label-md text-secondary hover:text-on-surface transition-standard" data-i18n="settings_btn_discard">Discard Changes</button>
-<button class="px-10 py-3 rounded-xl bg-primary text-white font-headline-md text-[16px] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-standard" data-i18n="settings_btn_save">Save Configuration</button>
+<button id="btn-discard-settings" class="px-8 py-3 rounded-xl font-label-md text-label-md text-secondary hover:text-on-surface transition-standard" data-i18n="settings_btn_discard">Discard Changes</button>
+<button id="btn-save-settings" class="px-10 py-3 rounded-xl bg-primary text-white font-headline-md text-[16px] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-standard" data-i18n="settings_btn_save">Save Configuration</button>
 </div>
 </div>
 </main>
@@ -430,6 +439,17 @@
 
         // Load settings from localStorage
         document.addEventListener('DOMContentLoaded', () => {
+            // Load installed version dynamically from version.json
+            fetch('../version.json?t=' + Date.now())
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.version) {
+                        const appVersionEl = document.getElementById('app-version');
+                        if (appVersionEl) appVersionEl.innerText = 'v' + data.version;
+                    }
+                })
+                .catch(e => console.error("Failed to load local version:", e));
+
             const settings = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
             document.getElementById('openai-api-key').value = settings.openai_api_key || '';
             document.getElementById('default-dest-url').value = settings.default_dest_url || '';
@@ -441,7 +461,7 @@
         });
 
         // Save settings to localStorage
-        document.querySelector('button[class*="bg-primary"]').addEventListener('click', () => {
+        document.getElementById('btn-save-settings').addEventListener('click', () => {
             const settings = {
                 openai_api_key: document.getElementById('openai-api-key').value.trim(),
                 default_dest_url: document.getElementById('default-dest-url').value.trim(),
@@ -456,9 +476,71 @@
         });
         
         // Discard changes
-        document.querySelector('button[class*="text-secondary"]').addEventListener('click', () => {
+        document.getElementById('btn-discard-settings').addEventListener('click', () => {
             if (confirm(t('settings_discard_confirm'))) {
                 window.location.reload();
+            }
+        });
+
+        // Folder selection settings logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnSelectFolder = document.getElementById('btn-select-folder-settings');
+            const dropdown = document.getElementById('folder-dropdown-settings');
+            const inputBaseUrl = document.getElementById('default-base-url');
+
+            if (btnSelectFolder && dropdown && inputBaseUrl) {
+                btnSelectFolder.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    
+                    // Show loading
+                    dropdown.innerHTML = '<div class="p-3 text-xs text-secondary font-label-md">Buscando pastas no servidor...</div>';
+                    dropdown.classList.remove('hidden');
+
+                    try {
+                        const response = await fetch('../list_folders.php?t=' + Date.now());
+                        const data = await response.json();
+                        
+                        if (data && data.success && Array.isArray(data.folders)) {
+                            if (data.folders.length === 0) {
+                                dropdown.innerHTML = '<div class="p-3 text-xs text-secondary font-label-md">Nenhuma pasta criada encontrada na raiz do app.</div>';
+                            } else {
+                                dropdown.innerHTML = '';
+                                
+                                // Calculate server root URL
+                                const segments = window.location.pathname.split('/');
+                                segments.pop();
+                                segments.pop();
+                                const rootPath = segments.join('/');
+                                const appRootUrl = window.location.origin + (rootPath.endsWith('/') ? rootPath : rootPath + '/');
+
+                                data.folders.forEach(folder => {
+                                    const btn = document.createElement('button');
+                                    btn.type = 'button';
+                                    btn.className = 'w-full text-left px-4 py-2.5 hover:bg-surface-container transition-colors text-xs font-label-md text-on-surface flex items-center gap-2';
+                                    btn.innerHTML = `<span class="material-symbols-outlined text-secondary text-sm">folder</span> ${folder}`;
+                                    
+                                    btn.addEventListener('click', () => {
+                                        const fullUrl = appRootUrl + folder + '/';
+                                        inputBaseUrl.value = fullUrl;
+                                        dropdown.classList.add('hidden');
+                                    });
+                                    dropdown.appendChild(btn);
+                                });
+                            }
+                        } else {
+                            dropdown.innerHTML = '<div class="p-3 text-xs text-error font-label-md">Erro ao carregar pastas.</div>';
+                        }
+                    } catch (err) {
+                        dropdown.innerHTML = '<div class="p-3 text-xs text-error font-label-md">Erro na chamada ao servidor.</div>';
+                        console.error(err);
+                    }
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#btn-select-folder-settings') && !e.target.closest('#folder-dropdown-settings')) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
             }
         });
     </script>

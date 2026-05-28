@@ -152,12 +152,15 @@
 <button class="w-full py-3 bg-primary-container text-on-primary-container rounded-xl font-label-md hover:brightness-110 active:scale-95 transition-all">
                 <span data-i18n="nav_upgrade">Upgrade Plan</span>
             </button>
-<div class="flex items-center gap-3 mt-6">
+<div class="flex items-center justify-between gap-3 mt-6">
+<div class="flex items-center gap-3 overflow-hidden">
 <img alt="User Profile Avatar" class="w-10 h-10 rounded-full bg-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEcYQO7JtR6WJ3RVigNTRGa_RZ54L31xQF_vzm2MdhgkAOJcA7ZwGdtSFIvnxEUtG4POTo2MwkZ680w2x-mjXwGPEvYBYcnXN8Ge01mgx_GOmAMO1lE4xJ_4VKgsi3XHAIZuNA9Qe574TrsZaFFKoQRqWOekAVtFx_Y4varj7ELVLBmCBFml5DzAkWMmJOB-Bq7L7lcBDCvbnuC4L1zB1xDrNb5LTp25bTCE75mQsbPqAXUtVGZizx-p4piGjTg9dylfKywtsmtHI"/>
 <div class="overflow-hidden">
 <p class="font-label-md text-on-surface truncate">Alex Rivera</p>
 <p class="text-xs text-secondary truncate">Pro Member</p>
 </div>
+</div>
+<span class="text-[10px] font-semibold text-secondary/50 shrink-0" id="app-version">...</span>
 </div>
 </div>
 </aside>
@@ -296,10 +299,28 @@
 </div>
 </footer>
 </main>
-<script>
-        const CURRENT_VERSION = "1.0.4";
+        let installedVersion = "2.0.0";
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load installed version from local version.json dynamically
+            try {
+                const localRes = await fetch('../version.json?t=' + Date.now());
+                if (localRes.ok) {
+                    const localData = await localRes.json();
+                    if (localData && localData.version) {
+                        installedVersion = localData.version;
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load local version:", e);
+            }
+            
+            // Display installed version
+            const appVersionEl = document.getElementById('app-version');
+            if (appVersionEl) {
+                appVersionEl.innerText = 'v' + installedVersion;
+            }
+
             const history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
             
             // Calculate Stats
@@ -370,7 +391,7 @@
 
                 const remoteData = await response.json();
                 if (remoteData && remoteData.version) {
-                    const isNewer = compareVersions(remoteData.version, CURRENT_VERSION);
+                    const isNewer = compareVersions(remoteData.version, installedVersion);
                     if (isNewer) {
                         // Display banner and set text
                         updateMessage.innerText = t('update_available').replace('{version}', remoteData.version);

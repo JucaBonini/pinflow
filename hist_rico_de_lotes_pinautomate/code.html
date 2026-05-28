@@ -135,6 +135,9 @@
 <button class="w-full bg-primary-container text-on-primary-container py-3 rounded-xl font-label-md text-label-md hover:brightness-110 active:scale-95 transition-all">
                 <span data-i18n="nav_upgrade">Upgrade Plan</span>
             </button>
+<div class="mt-4 text-center">
+<span class="text-[10px] font-semibold text-secondary/50" id="app-version">...</span>
+</div>
 </div>
 </aside>
 <!-- TopAppBar -->
@@ -259,6 +262,17 @@
         let history = [];
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Load installed version dynamically from version.json
+            fetch('../version.json?t=' + Date.now())
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.version) {
+                        const appVersionEl = document.getElementById('app-version');
+                        if (appVersionEl) appVersionEl.innerText = 'v' + data.version;
+                    }
+                })
+                .catch(e => console.error("Failed to load local version:", e));
+
             loadHistory();
         });
 
