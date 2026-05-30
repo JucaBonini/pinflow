@@ -1,10 +1,27 @@
 <?php
 // db.php - Database connection and schema initialization
 
-$host = 'localhost';
-$db   = 'pinflow';
-$user = 'root';
-$pass = '';
+$isLocal = false;
+if (isset($_SERVER['HTTP_HOST'])) {
+    $hostLower = strtolower($_SERVER['HTTP_HOST']);
+    if ($hostLower === 'localhost' || $hostLower === '127.0.0.1' || substr($hostLower, 0, 8) === '192.168.' || substr($hostLower, 0, 3) === '10.') {
+        $isLocal = true;
+    }
+} else {
+    $isLocal = true;
+}
+
+if ($isLocal) {
+    $host = 'localhost';
+    $db   = 'pinflow';
+    $user = 'root';
+    $pass = '';
+} else {
+    $host = '127.0.0.1';
+    $db   = 'desc_pinflow';
+    $user = 'desc_pinflow';
+    $pass = 'fNIH%xM#M1cHv3L*';
+}
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
