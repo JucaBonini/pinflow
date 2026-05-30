@@ -20,7 +20,7 @@ if ($isLocal) {
     $host = '127.0.0.1';
     $db   = 'desc_pinflow';
     $user = 'desc_pinflow';
-    $pass = 'WrsMsrs280707';
+    $pass = 'fNIH%xM#M1cHv3L*';
 }
 $charset = 'utf8mb4';
 
