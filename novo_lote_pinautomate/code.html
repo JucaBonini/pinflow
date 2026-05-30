@@ -1119,7 +1119,6 @@
                 return String(val).replace(/[\r\n]+/g, ' ').trim();
             };
 
-            const zip = new JSZip();
             const csvRows = [
                 [
                     "Title",
@@ -1135,14 +1134,10 @@
 
             const usedTitles = new Set();
 
-            /* Render and zip each canvas */
+            /* Process each canvas for CSV */
             for (let i = 0; i < uploadedImages.length; i++) {
                 const pinObj = uploadedImages[i];
                 const filename = `pin_${String(i + 1).padStart(2, '0')}.jpg`;
-                
-                /* Get image blob from canvas */
-                const blob = await new Promise(resolve => pinObj.canvas.toBlob(resolve, 'image/jpeg', 0.9));
-                zip.file(filename, blob);
 
                 // Ensure unique titles for Pinterest bulk create rules
                 let baseTitle = cleanCSVVal(pinObj.cardTitle || "Pin");
@@ -1167,15 +1162,6 @@
                     ""  // Keywords
                 ]);
             }
-
-            /* Save to ZIP */
-            const zipBlob = await zip.generateAsync({ type: 'blob' });
-            const zipUrl = URL.createObjectURL(zipBlob);
-            const zipLink = document.createElement('a');
-            zipLink.href = zipUrl;
-            zipLink.download = `${batchName.toLowerCase().replace(/\s+/g, '_')}_imagens.zip`;
-            zipLink.click();
-            URL.revokeObjectURL(zipUrl);
 
             /* Save to CSV */
             const csvContent = "\ufeff" + csvRows.map(row => 

@@ -412,6 +412,9 @@
                     </td>
                     <td class="px-6 py-5 text-right">
                         <div class="flex justify-end gap-2">
+                            <a href="../download_batch_zip.php?batch_id=${batch.id}" class="p-2 hover:bg-surface-container-high rounded-lg text-secondary hover:text-primary transition-colors flex items-center justify-center btn-download-zip" title="${t('hist_btn_download_zip')}" download>
+                                <span class="material-symbols-outlined">download</span>
+                            </a>
                             <button class="p-2 hover:bg-surface-container-high rounded-lg text-secondary hover:text-primary transition-colors btn-view" data-id="${batch.id}" title="${t('hist_btn_view')}">
                                 <span class="material-symbols-outlined">visibility</span>
                             </button>
