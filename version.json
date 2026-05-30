@@ -1,5 +1,5 @@
 {
-  "version": "2.2.4",
+  "version": "2.2.5",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.2.4 - Sistema de Autenticação com controle de acesso, Painel Admin para gerenciamento de Usuários e Planos (com limites de pins) e personalização de perfil (Nome, Nick e Avatar)."
+  "changelog": "Versão 2.2.5 - Otimização do fluxo de geração de lotes (download apenas do CSV) e implementação de download de ZIP com imagens sob demanda diretamente pelo Histórico."
 }
