@@ -1,5 +1,5 @@
 {
-  "version": "2.2.1",
+  "version": "2.2.2",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.2.1 - Corrige o erro de importação em lote no Pinterest ao reordenar as colunas do CSV para o padrão oficial e limpar quebras de linha nas descrições."
+  "changelog": "Versão 2.2.2 - Corrige erro de importação em lote do Pinterest adicionando desduplicação automática e sequencial de títulos no arquivo CSV exportado."
 }

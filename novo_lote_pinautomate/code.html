@@ -1125,6 +1125,8 @@
                 ] /* Header */
             ];
 
+            const usedTitles = new Set();
+
             /* Render and zip each canvas */
             for (let i = 0; i < uploadedImages.length; i++) {
                 const pinObj = uploadedImages[i];
@@ -1134,10 +1136,20 @@
                 const blob = await new Promise(resolve => pinObj.canvas.toBlob(resolve, 'image/jpeg', 0.9));
                 zip.file(filename, blob);
 
+                // Ensure unique titles for Pinterest bulk create rules
+                let baseTitle = cleanCSVVal(pinObj.cardTitle || "Pin");
+                let uniqueTitle = baseTitle;
+                let counter = 1;
+                while (usedTitles.has(uniqueTitle.toLowerCase())) {
+                    counter++;
+                    uniqueTitle = `${baseTitle} ${counter}`;
+                }
+                usedTitles.add(uniqueTitle.toLowerCase());
+
                 /* Add to CSV rows */
                 const mediaUrl = mediaBaseUrl + filename;
                 csvRows.push([
-                    cleanCSVVal(pinObj.cardTitle),
+                    uniqueTitle,
                     cleanCSVVal(mediaUrl),
                     cleanCSVVal(board),
                     "", // Thumbnail
