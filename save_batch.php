@@ -89,7 +89,19 @@ try {
         $baseUrl
     ]);
 
-    $newOriginalIndex = 0;
+    // Extract the batch zip file containing all images
+    if (isset($_FILES['batch_zip']) && isset($_FILES['batch_zip']['tmp_name'])) {
+        $zipFile = $_FILES['batch_zip']['tmp_name'];
+        $zip = new ZipArchive();
+        if ($zip->open($zipFile) === TRUE) {
+            $zip->extractTo($batchDir);
+            $zip->close();
+        } else {
+            throw new Exception("Falha ao extrair o arquivo ZIP de lote enviado.");
+        }
+    } else {
+        throw new Exception("Arquivo ZIP do lote não foi enviado pelo cliente.");
+    }
     
     // For each pin record
     foreach ($pinsData as $index => $pin) {
@@ -102,36 +114,23 @@ try {
         
         $targetGenFile = $batchDir . '/' . $genFileName;
 
-        // 1. Move the generated image (it is ALWAYS uploaded by the client)
-        if (isset($_FILES['generated_images']) && isset($_FILES['generated_images']['tmp_name'][$index])) {
-            $genTmpName = $_FILES['generated_images']['tmp_name'][$index];
-            if (!move_uploaded_file($genTmpName, $targetGenFile)) {
-                throw new Exception("Failed to move generated file at index " . $index);
-            }
-        } else {
-            throw new Exception("Generated file upload missing at index " . $index);
+        // 1. Verify the generated image exists in extracted directory
+        if (!file_exists($targetGenFile)) {
+            throw new Exception("Generated file " . $genFileName . " missing in extracted ZIP");
         }
 
-        // 2. Save or copy the original image
+        // 2. Verify or copy the original image
         if ($pin['is_new']) {
-            // It is a newly uploaded image
-            if (isset($_FILES['original_images']) && isset($_FILES['original_images']['tmp_name'][$newOriginalIndex])) {
-                $origTmpName = $_FILES['original_images']['tmp_name'][$newOriginalIndex];
-                $origName = $_FILES['original_images']['name'][$newOriginalIndex];
-                $origExt = pathinfo($origName, PATHINFO_EXTENSION);
-                if (empty($origExt)) $origExt = 'jpg';
-                
-                $origFileName = 'original_' . $paddedIndex . '.' . $origExt;
-                $targetOrigFile = $batchDir . '/' . $origFileName;
+            $origExt = isset($pin['originalExt']) ? preg_replace('/[^a-zA-Z0-9]/', '', $pin['originalExt']) : 'jpg';
+            if (empty($origExt)) $origExt = 'jpg';
+            
+            $origFileName = 'original_' . $paddedIndex . '.' . $origExt;
+            $targetOrigFile = $batchDir . '/' . $origFileName;
 
-                if (move_uploaded_file($origTmpName, $targetOrigFile)) {
-                    $finalImagePath = 'imagens-pins/' . $batchId . '/' . $origFileName;
-                } else {
-                    throw new Exception("Failed to move uploaded original file at index " . $index);
-                }
-                $newOriginalIndex++;
+            if (file_exists($targetOrigFile)) {
+                $finalImagePath = 'imagens-pins/' . $batchId . '/' . $origFileName;
             } else {
-                throw new Exception("Uploaded original file not found for new pin at index " . $index);
+                throw new Exception("Original file " . $origFileName . " missing in extracted ZIP");
             }
         } else {
             // It is an existing image from a cloned batch

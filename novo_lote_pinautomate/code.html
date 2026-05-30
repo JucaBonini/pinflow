@@ -1185,18 +1185,22 @@
             formData.append('keyword', inputKeyword.value.trim());
             formData.append('baseUrl', rootBaseUrl);
             
+            const uploadZip = new JSZip();
             const pinsMetadata = [];
             for (let i = 0; i < uploadedImages.length; i++) {
                 const pin = uploadedImages[i];
-                const filename = `pin_${String(i + 1).padStart(2, '0')}.jpg`;
+                const genFilename = `pin_${String(i + 1).padStart(2, '0')}.jpg`;
                 
+                let originalExt = null;
                 if (pin.file) {
-                    formData.append('original_images[]', pin.file);
+                    originalExt = pin.file.name.split('.').pop() || 'jpg';
+                    const origFilename = `original_${String(i + 1).padStart(2, '0')}.${originalExt}`;
+                    uploadZip.file(origFilename, pin.file);
                 }
                 
-                // Always upload the generated canvas image (with overlay text)
+                // Add the generated canvas image (with overlay text)
                 const genBlob = await new Promise(resolve => pin.canvas.toBlob(resolve, 'image/jpeg', 0.9));
-                formData.append('generated_images[]', genBlob, filename);
+                uploadZip.file(genFilename, genBlob);
                 
                 pinsMetadata.push({
                     topLine1: pin.topLine1,
@@ -1205,9 +1209,13 @@
                     cardSubtitle: pin.cardSubtitle,
                     description: pin.description,
                     is_new: !!pin.file,
+                    originalExt: originalExt,
                     serverImageUrl: pin.serverImageUrl || null
                 });
             }
+            
+            const zipBlob = await uploadZip.generateAsync({ type: 'blob' });
+            formData.append('batch_zip', zipBlob, 'batch.zip');
             
             formData.append('pins_data', JSON.stringify(pinsMetadata));
             
