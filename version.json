@@ -1,5 +1,5 @@
 {
-  "version": "2.1.1",
+  "version": "2.1.2",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.1.1 - Correção nos cabeçalhos do CSV gerado para garantir compatibilidade 100% com o validador de importação em massa do Pinterest em português (adicionadas as colunas Título do vídeo, Data de publicação e Miniatura)."
+  "changelog": "Versão 2.1.2 - Torna os botões de ação (Ver Pins, Reutilizar, Excluir) no histórico sempre visíveis em vez de apenas no hover, corrigindo problemas de usabilidade em telas touch e dispositivos móveis."
 }
