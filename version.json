@@ -1,5 +1,5 @@
 {
-  "version": "2.1.2",
+  "version": "2.1.3",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.1.2 - Torna os botões de ação (Ver Pins, Reutilizar, Excluir) no histórico sempre visíveis em vez de apenas no hover, corrigindo problemas de usabilidade em telas touch e dispositivos móveis."
+  "changelog": "Versão 2.1.3 - Adiciona a coluna Palavras-chave (Keywords) no arquivo CSV para garantir compatibilidade completa com o modelo de importação do Pinterest."
 }

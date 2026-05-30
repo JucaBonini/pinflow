@@ -69,6 +69,7 @@ const translations = {
         csv_video_title: "Título do vídeo",
         csv_publish_date: "Data de publicação",
         csv_thumbnail: "Miniatura",
+        csv_keywords: "Palavras-chave",
 
         // Edit Modal
         modal_title: "Editar Detalhes do Pin",
@@ -249,6 +250,7 @@ const translations = {
         csv_video_title: "Video title",
         csv_publish_date: "Publish date",
         csv_thumbnail: "Thumbnail",
+        csv_keywords: "Keywords",
 
         // Edit Modal
         modal_title: "Edit Pin Details",
@@ -429,6 +431,7 @@ const translations = {
         csv_video_title: "Título del vídeo",
         csv_publish_date: "Fecha de publicación",
         csv_thumbnail: "Miniatura",
+        csv_keywords: "Palabras clave",
 
         // Edit Modal
         modal_title: "Editar Detalles del Pin",
