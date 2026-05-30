@@ -56,39 +56,51 @@ try {
         $baseUrl
     ]);
 
-    $newFileIndex = 0;
+    $newOriginalIndex = 0;
+    $newGeneratedIndex = 0;
     
     // For each pin record
     foreach ($pinsData as $index => $pin) {
         $pinId = 'pin_' . $batchId . '_' . $index . '_' . rand(100, 999);
         $finalImagePath = '';
+        
+        $paddedIndex = str_pad($index + 1, 2, '0', STR_PAD_LEFT);
+        $origFileName = '';
+        $genFileName = 'pin_' . $paddedIndex . '.jpg';
+        
+        $targetGenFile = $batchDir . '/' . $genFileName;
 
         if ($pin['is_new']) {
             // It is a newly uploaded image
-            if (isset($_FILES['images']) && isset($_FILES['images']['tmp_name'][$newFileIndex])) {
-                $tmpName = $_FILES['images']['tmp_name'][$newFileIndex];
-                $originalName = $_FILES['images']['name'][$newFileIndex];
-                $ext = pathinfo($originalName, PATHINFO_EXTENSION);
-                if (empty($ext)) $ext = 'jpg';
+            if (isset($_FILES['original_images']) && isset($_FILES['original_images']['tmp_name'][$newOriginalIndex]) &&
+                isset($_FILES['generated_images']) && isset($_FILES['generated_images']['tmp_name'][$newGeneratedIndex])) {
                 
-                $fileName = $pinId . '.' . $ext;
-                $targetFile = $batchDir . '/' . $fileName;
+                $origTmpName = $_FILES['original_images']['tmp_name'][$newOriginalIndex];
+                $origName = $_FILES['original_images']['name'][$newOriginalIndex];
+                $origExt = pathinfo($origName, PATHINFO_EXTENSION);
+                if (empty($origExt)) $origExt = 'jpg';
+                
+                $origFileName = 'original_' . $paddedIndex . '.' . $origExt;
+                $targetOrigFile = $batchDir . '/' . $origFileName;
+                
+                $genTmpName = $_FILES['generated_images']['tmp_name'][$newGeneratedIndex];
 
-                if (move_uploaded_file($tmpName, $targetFile)) {
-                    // Set relative image path for database
-                    $finalImagePath = 'imagens-pins/' . $batchId . '/' . $fileName;
+                if (move_uploaded_file($origTmpName, $targetOrigFile) && move_uploaded_file($genTmpName, $targetGenFile)) {
+                    // Set relative image path for database (original image is used to reload editor)
+                    $finalImagePath = 'imagens-pins/' . $batchId . '/' . $origFileName;
                 } else {
-                    throw new Exception("Failed to move uploaded file " . $originalName);
+                    throw new Exception("Failed to move uploaded original or generated file at index " . $index);
                 }
-                $newFileIndex++;
+                $newOriginalIndex++;
+                $newGeneratedIndex++;
             } else {
-                throw new Exception("Uploaded file not found at index " . $newFileIndex);
+                throw new Exception("Uploaded file sets not found for new pin at index " . $index);
             }
         } else {
             // It is an existing image from a cloned batch
             $serverUrl = $pin['serverImageUrl'];
             if (!empty($serverUrl)) {
-                // Parse relative path from URL (e.g. .../imagens-pins/batch_xxx/pin_yyy.jpg)
+                // Parse relative path from URL
                 $pathParts = parse_url($serverUrl, PHP_URL_PATH);
                 $segments = explode('/imagens-pins/', $pathParts);
                 
@@ -97,15 +109,47 @@ try {
                     $sourceFile = __DIR__ . '/' . $relativeSourcePath;
 
                     if (file_exists($sourceFile)) {
-                        $ext = pathinfo($sourceFile, PATHINFO_EXTENSION);
-                        if (empty($ext)) $ext = 'jpg';
-                        $fileName = $pinId . '.' . $ext;
-                        $targetFile = $batchDir . '/' . $fileName;
+                        $origExt = pathinfo($sourceFile, PATHINFO_EXTENSION);
+                        if (empty($origExt)) $origExt = 'jpg';
+                        
+                        $origFileName = 'original_' . $paddedIndex . '.' . $origExt;
+                        $targetOrigFile = $batchDir . '/' . $origFileName;
 
-                        if (copy($sourceFile, $targetFile)) {
-                            $finalImagePath = 'imagens-pins/' . $batchId . '/' . $fileName;
+                        if (copy($sourceFile, $targetOrigFile)) {
+                            $finalImagePath = 'imagens-pins/' . $batchId . '/' . $origFileName;
+                            
+                            // Now handle the generated file
+                            if (!empty($pin['has_generated_upload'])) {
+                                // The generated file is uploaded from the client because it was edited
+                                if (isset($_FILES['generated_images']) && isset($_FILES['generated_images']['tmp_name'][$newGeneratedIndex])) {
+                                    $genTmpName = $_FILES['generated_images']['tmp_name'][$newGeneratedIndex];
+                                    if (!move_uploaded_file($genTmpName, $targetGenFile)) {
+                                        throw new Exception("Failed to move edited generated file at index " . $index);
+                                    }
+                                    $newGeneratedIndex++;
+                                } else {
+                                    throw new Exception("Missing edited generated file upload at index " . $index);
+                                }
+                            } else {
+                                // Not edited, so copy the source generated file
+                                $sourceDir = dirname($sourceFile);
+                                $sourceFileName = basename($sourceFile);
+                                
+                                $sourceGenFile = '';
+                                if (preg_match('/original_(\d+)/', $sourceFileName, $matches)) {
+                                    $sourceGenFile = $sourceDir . '/pin_' . $matches[1] . '.jpg';
+                                }
+                                
+                                if (empty($sourceGenFile) || !file_exists($sourceGenFile)) {
+                                    $sourceGenFile = $sourceDir . '/pin_' . $paddedIndex . '.jpg';
+                                }
+                                
+                                if (file_exists($sourceGenFile)) {
+                                    copy($sourceGenFile, $targetGenFile);
+                                }
+                            }
                         } else {
-                            throw new Exception("Failed to copy existing file " . $sourceFile);
+                            throw new Exception("Failed to copy existing original file " . $sourceFile);
                         }
                     } else {
                         throw new Exception("Source file for reuse does not exist: " . $sourceFile);

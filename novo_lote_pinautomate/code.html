@@ -1038,6 +1038,7 @@
                 pinObj.cardTitle = editCardTitle.value;
                 pinObj.cardSubtitle = editCardSub.value;
                 pinObj.description = editDesc.value;
+                pinObj.is_edited = true;
 
                 /* Redraw actual cached canvas */
                 drawPinCanvas(pinObj.imgElement, pinObj, pinObj.canvas);
@@ -1083,6 +1084,28 @@
 
             updateStatus('processando', t('nb_status_packing'));
 
+            // Deduce unique batchId and base URL for server hosting
+            const batchId = 'batch_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+            
+            let rootBaseUrl = baseUrl.trim();
+            if (!rootBaseUrl) {
+                const segments = window.location.pathname.split('/');
+                segments.pop(); // remove code.html
+                segments.pop(); // remove novo_lote_pinautomate
+                const rootPath = segments.join('/');
+                rootBaseUrl = window.location.origin + (rootPath.endsWith('/') ? rootPath : rootPath + '/');
+            }
+            if (!rootBaseUrl.endsWith('/')) {
+                rootBaseUrl += '/';
+            }
+
+            let mediaBaseUrl = '';
+            if (rootBaseUrl.includes('/imagens-pins/')) {
+                mediaBaseUrl = rootBaseUrl + batchId + '/';
+            } else {
+                mediaBaseUrl = rootBaseUrl + 'imagens-pins/' + batchId + '/';
+            }
+
             const zip = new JSZip();
             const csvRows = [
                 [
@@ -1108,7 +1131,7 @@
                 zip.file(filename, blob);
 
                 /* Add to CSV rows */
-                const mediaUrl = baseUrl ? (baseUrl.endsWith('/') ? baseUrl : baseUrl + '/') + filename : filename;
+                const mediaUrl = mediaBaseUrl + filename;
                 csvRows.push([
                     pinObj.cardTitle,
                     pinObj.description,
@@ -1145,20 +1168,29 @@
 
             updateStatus('processando', 'Salvando lote no banco de dados...');
             
-            const batchId = 'batch_' + Date.now();
             const formData = new FormData();
             formData.append('batch_id', batchId);
             formData.append('name', batchName);
             formData.append('destUrl', destUrl);
             formData.append('board', board);
             formData.append('keyword', inputKeyword.value.trim());
-            formData.append('baseUrl', baseUrl);
+            formData.append('baseUrl', rootBaseUrl);
             
             const pinsMetadata = [];
-            uploadedImages.forEach((pin) => {
+            for (let i = 0; i < uploadedImages.length; i++) {
+                const pin = uploadedImages[i];
+                const filename = `pin_${String(i + 1).padStart(2, '0')}.jpg`;
+                
                 if (pin.file) {
-                    formData.append('images[]', pin.file);
+                    formData.append('original_images[]', pin.file);
+                    
+                    const genBlob = await new Promise(resolve => pin.canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                    formData.append('generated_images[]', genBlob, filename);
+                } else if (pin.is_edited) {
+                    const genBlob = await new Promise(resolve => pin.canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                    formData.append('generated_images[]', genBlob, filename);
                 }
+                
                 pinsMetadata.push({
                     topLine1: pin.topLine1,
                     topLine2: pin.topLine2,
@@ -1166,9 +1198,10 @@
                     cardSubtitle: pin.cardSubtitle,
                     description: pin.description,
                     is_new: !!pin.file,
+                    has_generated_upload: !!pin.file || !!pin.is_edited,
                     serverImageUrl: pin.serverImageUrl || null
                 });
-            });
+            }
             
             formData.append('pins_data', JSON.stringify(pinsMetadata));
             
@@ -1183,7 +1216,7 @@
                 }
                 
                 /* Save batch to localStorage history */
-                saveBatchToHistory(batchName, uploadedImages.length, destUrl, board, pinsMetadata);
+                saveBatchToHistory(batchId, batchName, uploadedImages.length, destUrl, board, pinsMetadata);
 
                 updateStatus('pronto', t('nb_status_success'));
                 alert(t('alert_export_success'));
@@ -1192,16 +1225,16 @@
                 alert('Erro ao salvar lote no banco de dados: ' + err.message);
                 
                 // fallback save batch to history anyway
-                saveBatchToHistory(batchName, uploadedImages.length, destUrl, board, pinsMetadata);
+                saveBatchToHistory(batchId, batchName, uploadedImages.length, destUrl, board, pinsMetadata);
                 updateStatus('pronto', 'Erro ao salvar no banco de dados');
             }
         });
 
         /* Save batch run to localStorage */
-        function saveBatchToHistory(name, count, destUrl, board, pinsMetadata = []) {
+        function saveBatchToHistory(batchId, name, count, destUrl, board, pinsMetadata = []) {
             const history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
             const newBatch = {
-                id: 'batch_' + Date.now(),
+                id: batchId,
                 name: name,
                 date: new Date().toLocaleString('pt-BR'),
                 count: count,

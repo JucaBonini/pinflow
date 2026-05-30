@@ -12,23 +12,30 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $batchId = isset($_POST['id']) ? $_POST['id'] : '';
 
-if (empty($batchId)) {
-    echo json_encode(['success' => false, 'error' => 'Missing batch ID']);
+if (empty($batchId) || !preg_match('/^[a-zA-Z0-9_-]+$/', $batchId)) {
+    echo json_encode(['success' => false, 'error' => 'Invalid or missing batch ID']);
     exit;
 }
 
 try {
-    // Delete files first
+    // Delete files first in a secure and complete manner
     $batchDir = __DIR__ . '/imagens-pins/' . $batchId;
-    if (is_dir($batchDir)) {
-        // Delete all files in the directory
-        $files = glob($batchDir . '/*');
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                unlink($file);
+    
+    // Ensure the folder path is actually inside the expected parent directory
+    $realBatchDir = realpath($batchDir);
+    $realParentDir = realpath(__DIR__ . '/imagens-pins');
+    
+    if ($realBatchDir !== false && $realParentDir !== false && strpos($realBatchDir, $realParentDir) === 0) {
+        if (is_dir($realBatchDir)) {
+            // Delete all files in the directory
+            $files = glob($realBatchDir . '/*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    @unlink($file);
+                }
             }
+            @rmdir($realBatchDir);
         }
-        rmdir($batchDir);
     }
     
     // Delete from DB (foreign key constraints cascade deletes the pins)

@@ -1,5 +1,5 @@
 {
-  "version": "2.1.4",
+  "version": "2.2.0",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.1.4 - Padroniza os cabeçalhos do arquivo CSV gerado estritamente em inglês para evitar falhas do validador de importação em massa do Pinterest."
+  "changelog": "Versão 2.2.0 - Adiciona hospedagem automatizada de imagens (originais e editadas em subpastas únicas do servidor) e exclusão recursiva e segura do lote excluído do histórico."
 }
