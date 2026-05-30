@@ -1198,13 +1198,11 @@
                 
                 if (pin.file) {
                     formData.append('original_images[]', pin.file);
-                    
-                    const genBlob = await new Promise(resolve => pin.canvas.toBlob(resolve, 'image/jpeg', 0.9));
-                    formData.append('generated_images[]', genBlob, filename);
-                } else if (pin.is_edited) {
-                    const genBlob = await new Promise(resolve => pin.canvas.toBlob(resolve, 'image/jpeg', 0.9));
-                    formData.append('generated_images[]', genBlob, filename);
                 }
+                
+                // Always upload the generated canvas image (with overlay text)
+                const genBlob = await new Promise(resolve => pin.canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                formData.append('generated_images[]', genBlob, filename);
                 
                 pinsMetadata.push({
                     topLine1: pin.topLine1,
@@ -1213,7 +1211,6 @@
                     cardSubtitle: pin.cardSubtitle,
                     description: pin.description,
                     is_new: !!pin.file,
-                    has_generated_upload: !!pin.file || !!pin.is_edited,
                     serverImageUrl: pin.serverImageUrl || null
                 });
             }

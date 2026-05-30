@@ -1,5 +1,5 @@
 {
-  "version": "2.2.2",
+  "version": "2.2.3",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.2.2 - Corrige erro de importação em lote do Pinterest adicionando desduplicação automática e sequencial de títulos no arquivo CSV exportado."
+  "changelog": "Versão 2.2.3 - Garante a integridade de lotes clonados/reutilizados (incluindo lotes antigos) ao sempre enviar as artes geradas no canvas diretamente do cliente."
 }
