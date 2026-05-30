@@ -196,6 +196,23 @@
 <button class="mt-4 px-6 py-2 rounded-full bg-primary text-on-primary font-label-md" data-i18n="nb_browse">Browse Local Files</button>
 </div>
 </section>
+<!-- Cloned Templates Section -->
+<section id="templates-section" class="hidden bg-surface-container-low/50 border border-outline-variant/30 rounded-2xl p-6 mb-6">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="font-label-md text-on-surface uppercase tracking-wider flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">content_copy</span>
+            <span>Templates de Pins Salvos</span> (<span id="templates-count">0</span>)
+        </h3>
+        <button id="btn-clear-templates" class="text-error font-label-md hover:underline">Remover Templates</button>
+    </div>
+    <p class="text-secondary font-body-sm mb-4">
+        Este lote foi carregado a partir do histórico. Faça upload de imagens para associá-las aos textos abaixo (em ordem).
+    </p>
+    <div id="templates-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+        <!-- Template items -->
+    </div>
+</section>
+
 <!-- Grid of Thumbnail Previews -->
 <section>
 <div class="flex items-center justify-between mb-4">
@@ -346,6 +363,7 @@
         let uploadedImages = []; /* List of Pin objects */
         let activeEditId = null;
         let globalSettings = {};
+        let clonedPinTemplates = [];
 
         /* Load settings from localStorage */
         document.addEventListener('DOMContentLoaded', () => {
@@ -358,7 +376,174 @@
             const today = new Date().toLocaleDateString();
             const batchPrefix = t('nav_new_batch') || 'Lote';
             inputBatchName.value = `${batchPrefix} - ${today}`;
+
+            // Check for clone parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const cloneId = urlParams.get('clone');
+            if (cloneId) {
+                loadCloneBatch(cloneId);
+            }
         });
+
+        const btnClearTemplates = document.getElementById('btn-clear-templates');
+        if (btnClearTemplates) {
+            btnClearTemplates.addEventListener('click', () => {
+                if (confirm('Deseja remover os templates salvos? As imagens já carregadas continuarão na fila, mas não estarão mais vinculadas.')) {
+                    clonedPinTemplates = [];
+                    uploadedImages.forEach(p => {
+                        delete p.templateIndex;
+                    });
+                    renderTemplates();
+                }
+            });
+        }
+
+        function loadCloneBatch(id) {
+            updateStatus('processando', 'Carregando lote para reutilização...');
+            
+            fetch(`../get_batch_details.php?id=${id}&t=` + Date.now())
+                .then(r => r.json())
+                .then(async res => {
+                    if (res && res.success && res.batch) {
+                        applyClonedBatchData(res.batch, res.pins || []);
+                    } else {
+                        loadCloneBatchFallback(id);
+                    }
+                })
+                .catch(e => {
+                    console.error("Failed to fetch clone from DB:", e);
+                    loadCloneBatchFallback(id);
+                });
+        }
+
+        function loadCloneBatchFallback(id) {
+            const history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
+            const batch = history.find(b => b.id === id);
+            if (batch) {
+                applyClonedBatchData(batch, batch.pins || []);
+            } else {
+                updateStatus('aguardando', t('nb_status_idle'));
+            }
+        }
+
+        async function applyClonedBatchData(batch, pins) {
+            inputBatchName.value = `${batch.name} (Reutilizado)`;
+            inputKeyword.value = batch.keyword || '';
+            inputDestUrl.value = batch.dest_url || batch.destUrl || '';
+            inputBoard.value = batch.board || '';
+            inputBaseUrl.value = batch.base_url || batch.baseUrl || '';
+
+            if (pins && pins.length > 0) {
+                clonedPinTemplates = pins.map(p => ({
+                    topLine1: p.top_line_1 || p.topLine1 || '',
+                    topLine2: p.top_line_2 || p.topLine2 || '',
+                    cardTitle: p.card_title || p.cardTitle || '',
+                    cardSubtitle: p.card_subtitle || p.cardSubtitle || '',
+                    description: p.description || '',
+                    imagePath: p.image_path || null,
+                    filled: false,
+                    fileId: null
+                }));
+
+                renderTemplates();
+
+                updateStatus('processando', 'Carregando imagens do servidor...');
+                
+                for (let i = 0; i < clonedPinTemplates.length; i++) {
+                    const template = clonedPinTemplates[i];
+                    if (template.imagePath) {
+                        const serverUrl = '../' + template.imagePath;
+                        const id = 'pin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        
+                        try {
+                            const pinObj = {
+                                id,
+                                file: null,
+                                originalSrc: serverUrl,
+                                serverImageUrl: window.location.origin + '/' + template.imagePath,
+                                topLine1: template.topLine1,
+                                topLine2: template.topLine2,
+                                cardTitle: template.cardTitle,
+                                cardSubtitle: template.cardSubtitle,
+                                description: template.description,
+                                imgElement: null,
+                                canvas: document.createElement('canvas'),
+                                templateIndex: i
+                            };
+
+                            template.filled = true;
+                            template.fileId = id;
+
+                            await new Promise((resolve) => {
+                                const img = new Image();
+                                img.crossOrigin = 'anonymous';
+                                img.onload = () => {
+                                    pinObj.imgElement = img;
+                                    drawPinCanvas(img, pinObj, pinObj.canvas);
+                                    resolve();
+                                };
+                                img.onerror = () => {
+                                    template.filled = false;
+                                    template.fileId = null;
+                                    resolve();
+                                };
+                                img.src = serverUrl;
+                            });
+
+                            if (template.filled) {
+                                uploadedImages.push(pinObj);
+                            }
+                        } catch (err) {
+                            console.error("Failed to load server image for pin " + i, err);
+                        }
+                    }
+                }
+
+                renderTemplates();
+                renderQueue();
+            }
+            
+            updateStatus('pronto', 'Lote carregado com sucesso!');
+        }
+
+        function renderTemplates() {
+            const section = document.getElementById('templates-section');
+            const grid = document.getElementById('templates-grid');
+            const countSpan = document.getElementById('templates-count');
+            
+            if (clonedPinTemplates.length === 0) {
+                section.classList.add('hidden');
+                return;
+            }
+            
+            section.classList.remove('hidden');
+            countSpan.innerText = clonedPinTemplates.length;
+            grid.innerHTML = '';
+            
+            clonedPinTemplates.forEach((t, i) => {
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-xl border flex flex-col justify-between text-xs font-label-md transition-all ${
+                    t.filled 
+                    ? 'bg-green-50 border-green-200 text-green-800' 
+                    : 'bg-surface-container border-outline-variant/30 text-secondary'
+                }`;
+                
+                const statusHtml = t.filled 
+                    ? `<span class="inline-flex items-center gap-1 text-[10px] text-green-700 font-bold bg-green-100 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 bg-green-600 rounded-full"></span>OK</span>`
+                    : `<span class="inline-flex items-center gap-1 text-[10px] text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>Vazia</span>`;
+                
+                item.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="font-bold text-on-surface truncate">#${i + 1}: ${t.cardTitle || '(Sem Título)'}</span>
+                            ${statusHtml}
+                        </div>
+                        <p class="text-[11px] text-secondary truncate">${t.description || '(Sem descrição)'}</p>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        }
 
         /* Prevent defaults for drag-and-drop */
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -410,49 +595,95 @@
 
             const filesToProcess = files.slice(0, allowedCount);
             
-            /* Generate text variations */
-            let variations = [];
-            if (globalSettings.openai_api_key) {
-                try {
-                    variations = await generateAIVariations(keyword, filesToProcess.length);
-                } catch (err) {
-                    console.error('OpenAI error:', err);
-                    alert(t('alert_openai_error'));
-                    variations = filesToProcess.map((_, i) => generateFallbackData(keyword, uploadedImages.length + i));
-                }
-            } else {
-                variations = filesToProcess.map((_, i) => generateFallbackData(keyword, uploadedImages.length + i));
-            }
-
+            let filesForAI = [];
+            
+            // Map files to unfilled templates first
             for (let i = 0; i < filesToProcess.length; i++) {
                 const file = filesToProcess[i];
-                const id = 'pin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                const originalSrc = URL.createObjectURL(file);
-                const data = variations[i] || generateFallbackData(keyword, uploadedImages.length + i);
-
-                const pinObj = {
-                    id,
-                    file,
-                    originalSrc,
-                    ...data,
-                    imgElement: null,
-                    canvas: document.createElement('canvas')
-                };
-
-                /* Wait for image element to load to draw the initial canvas */
-                await new Promise((resolve) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        pinObj.imgElement = img;
-                        drawPinCanvas(img, pinObj, pinObj.canvas);
-                        resolve();
+                const unfilledTemplate = clonedPinTemplates.find(t => !t.filled);
+                
+                if (unfilledTemplate) {
+                    const id = 'pin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const originalSrc = URL.createObjectURL(file);
+                    
+                    unfilledTemplate.filled = true;
+                    unfilledTemplate.fileId = id;
+                    
+                    const pinObj = {
+                        id,
+                        file,
+                        originalSrc,
+                        topLine1: unfilledTemplate.topLine1,
+                        topLine2: unfilledTemplate.topLine2,
+                        cardTitle: unfilledTemplate.cardTitle,
+                        cardSubtitle: unfilledTemplate.cardSubtitle,
+                        description: unfilledTemplate.description,
+                        imgElement: null,
+                        canvas: document.createElement('canvas'),
+                        templateIndex: clonedPinTemplates.indexOf(unfilledTemplate)
                     };
-                    img.src = originalSrc;
-                });
+                    
+                    await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            pinObj.imgElement = img;
+                            drawPinCanvas(img, pinObj, pinObj.canvas);
+                            resolve();
+                        };
+                        img.src = originalSrc;
+                    });
+                    
+                    uploadedImages.push(pinObj);
+                } else {
+                    filesForAI.push(file);
+                }
+            }
+            
+            // If there are extra files, generate variations for them
+            if (filesForAI.length > 0) {
+                let variations = [];
+                if (globalSettings.openai_api_key) {
+                    try {
+                        variations = await generateAIVariations(keyword, filesForAI.length);
+                    } catch (err) {
+                        console.error('OpenAI error:', err);
+                        alert(t('alert_openai_error'));
+                        variations = filesForAI.map((_, i) => generateFallbackData(keyword, uploadedImages.length + i));
+                    }
+                } else {
+                    variations = filesForAI.map((_, i) => generateFallbackData(keyword, uploadedImages.length + i));
+                }
 
-                uploadedImages.push(pinObj);
+                for (let i = 0; i < filesForAI.length; i++) {
+                    const file = filesForAI[i];
+                    const id = 'pin_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const originalSrc = URL.createObjectURL(file);
+                    const data = variations[i] || generateFallbackData(keyword, uploadedImages.length + i);
+
+                    const pinObj = {
+                        id,
+                        file,
+                        originalSrc,
+                        ...data,
+                        imgElement: null,
+                        canvas: document.createElement('canvas')
+                    };
+
+                    await new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            pinObj.imgElement = img;
+                            drawPinCanvas(img, pinObj, pinObj.canvas);
+                            resolve();
+                        };
+                        img.src = originalSrc;
+                    });
+
+                    uploadedImages.push(pinObj);
+                }
             }
 
+            renderTemplates();
             renderQueue();
             updateStatus('pronto', 'Imagens Prontas para Exportar');
         }
@@ -740,8 +971,21 @@
         function deletePin(id) {
             const index = uploadedImages.findIndex(p => p.id === id);
             if (index > -1) {
-                URL.revokeObjectURL(uploadedImages[index].originalSrc);
+                const pinObj = uploadedImages[index];
+                if (pinObj.originalSrc && pinObj.originalSrc.startsWith('blob:')) {
+                    URL.revokeObjectURL(pinObj.originalSrc);
+                }
+                
+                // Release matched template
+                if (pinObj.templateIndex !== undefined && pinObj.templateIndex > -1) {
+                    if (clonedPinTemplates[pinObj.templateIndex]) {
+                        clonedPinTemplates[pinObj.templateIndex].filled = false;
+                        clonedPinTemplates[pinObj.templateIndex].fileId = null;
+                    }
+                }
+                
                 uploadedImages.splice(index, 1);
+                renderTemplates();
                 renderQueue();
                 if (uploadedImages.length === 0) {
                     updateStatus('aguardando', t('nb_status_idle'));
@@ -891,15 +1135,62 @@
             csvLink.click();
             URL.revokeObjectURL(csvUrl);
 
-            /* Save batch to localStorage history */
-            saveBatchToHistory(batchName, uploadedImages.length, destUrl, board);
+            updateStatus('processando', 'Salvando lote no banco de dados...');
+            
+            const batchId = 'batch_' + Date.now();
+            const formData = new FormData();
+            formData.append('batch_id', batchId);
+            formData.append('name', batchName);
+            formData.append('destUrl', destUrl);
+            formData.append('board', board);
+            formData.append('keyword', inputKeyword.value.trim());
+            formData.append('baseUrl', baseUrl);
+            
+            const pinsMetadata = [];
+            uploadedImages.forEach((pin) => {
+                if (pin.file) {
+                    formData.append('images[]', pin.file);
+                }
+                pinsMetadata.push({
+                    topLine1: pin.topLine1,
+                    topLine2: pin.topLine2,
+                    cardTitle: pin.cardTitle,
+                    cardSubtitle: pin.cardSubtitle,
+                    description: pin.description,
+                    is_new: !!pin.file,
+                    serverImageUrl: pin.serverImageUrl || null
+                });
+            });
+            
+            formData.append('pins_data', JSON.stringify(pinsMetadata));
+            
+            try {
+                const response = await fetch('../save_batch.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const res = await response.json();
+                if (!res.success) {
+                    throw new Error(res.error || 'Erro desconhecido');
+                }
+                
+                /* Save batch to localStorage history */
+                saveBatchToHistory(batchName, uploadedImages.length, destUrl, board, pinsMetadata);
 
-            updateStatus('pronto', t('nb_status_success'));
-            alert(t('alert_export_success'));
+                updateStatus('pronto', t('nb_status_success'));
+                alert(t('alert_export_success'));
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao salvar lote no banco de dados: ' + err.message);
+                
+                // fallback save batch to history anyway
+                saveBatchToHistory(batchName, uploadedImages.length, destUrl, board, pinsMetadata);
+                updateStatus('pronto', 'Erro ao salvar no banco de dados');
+            }
         });
 
         /* Save batch run to localStorage */
-        function saveBatchToHistory(name, count, destUrl, board) {
+        function saveBatchToHistory(name, count, destUrl, board, pinsMetadata = []) {
             const history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
             const newBatch = {
                 id: 'batch_' + Date.now(),
@@ -908,7 +1199,10 @@
                 count: count,
                 destUrl: destUrl,
                 board: board,
-                status: 'Completed'
+                status: 'Completed',
+                keyword: inputKeyword.value.trim(),
+                baseUrl: inputBaseUrl.value.trim(),
+                pins: pinsMetadata
             };
             history.unshift(newBatch);
             localStorage.setItem('pinautomate_history', JSON.stringify(history));

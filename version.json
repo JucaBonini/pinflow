@@ -1,5 +1,5 @@
 {
-  "version": "2.0.0",
-  "releaseDate": "2026-05-27",
-  "changelog": "Versão 2.0.0 - Adicionado seletor de pastas no servidor, correções no salvamento de configurações, cabeçalhos CSV dinâmicos localizados e melhorias na geração de títulos e copy."
+  "version": "2.1.0",
+  "releaseDate": "2026-05-30",
+  "changelog": "Versão 2.1.0 - Integração com banco de dados MySQL para histórico e reutilização de lotes. Adicionado visualizador de detalhes com imagens reais no histórico e preenchimento automático inteligente de templates ao reutilizar lotes."
 }

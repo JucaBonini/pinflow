@@ -257,9 +257,60 @@
 </div>
 </div>
 </div>
+<!-- Details Modal -->
+<div id="details-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-on-surface/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl overflow-hidden flex flex-col border border-outline-variant/30 max-h-[85vh]">
+        <!-- Header -->
+        <div class="p-6 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-low">
+            <div>
+                <h3 id="details-modal-title" class="font-headline-md text-on-surface" data-i18n="hist_modal_view_title">Detalhes do Lote</h3>
+                <p id="details-modal-subtitle" class="font-body-sm text-secondary">Informações e pins gerados neste lote</p>
+            </div>
+            <button id="details-modal-close-x" class="p-1 rounded-lg text-secondary hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <!-- Body -->
+        <div class="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+            <!-- Batch info cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 bg-surface-container-low rounded-xl border border-outline-variant/20">
+                    <span class="text-xs text-secondary font-label-md uppercase block" data-i18n="nb_keyword">Palavra-Chave (IA)</span>
+                    <span id="details-keyword" class="font-body-md text-on-surface font-semibold">-</span>
+                </div>
+                <div class="p-4 bg-surface-container-low rounded-xl border border-outline-variant/20">
+                    <span class="text-xs text-secondary font-label-md uppercase block" data-i18n="nb_board">Pasta do Pinterest (Board)</span>
+                    <span id="details-board" class="font-body-md text-on-surface font-semibold">-</span>
+                </div>
+                <div class="p-4 bg-surface-container-low rounded-xl border border-outline-variant/20">
+                    <span class="text-xs text-secondary font-label-md uppercase block" data-i18n="nb_base_url">URL Base (Contabo)</span>
+                    <span id="details-base-url" class="font-body-md text-on-surface font-semibold truncate block">-</span>
+                </div>
+            </div>
+            
+            <!-- Pins List -->
+            <div>
+                <h4 class="font-label-md text-on-surface uppercase tracking-wider mb-3" data-i18n="hist_modal_pins_list">Pins Gerados</h4>
+                <div id="details-pins-container" class="space-y-4">
+                    <!-- Pin details rows will be injected here -->
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div class="p-4 border-t border-outline-variant/20 flex justify-end gap-3 bg-surface-container-low">
+            <button id="details-modal-close" class="px-6 py-2 border border-outline-variant text-secondary rounded-lg font-label-md hover:bg-surface-container transition-all" data-i18n="modal_btn_cancel">Fechar</button>
+            <button id="details-modal-reuse" class="px-6 py-2 bg-primary text-white rounded-lg font-label-md hover:brightness-110 transition-all flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">autorenew</span>
+                <span data-i18n="hist_btn_reuse">Reutilizar Lote</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 </main>
 <script>
         let history = [];
+        let activeDetailsBatchId = null;
 
         document.addEventListener('DOMContentLoaded', () => {
             /* Load installed version dynamically from version.json */
@@ -277,8 +328,28 @@
         });
 
         function loadHistory() {
+            fetch('../get_batches.php?t=' + Date.now())
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success) {
+                        history = res.batches || [];
+                        updateStatsAndRender();
+                    } else {
+                        loadHistoryFallback();
+                    }
+                })
+                .catch(e => {
+                    console.error("Failed to load history from DB, trying local:", e);
+                    loadHistoryFallback();
+                });
+        }
+
+        function loadHistoryFallback() {
             history = JSON.parse(localStorage.getItem('pinautomate_history')) || [];
-            
+            updateStatsAndRender();
+        }
+
+        function updateStatsAndRender() {
             /* Calculate Stats */
             let totalPins = 0;
             history.forEach(b => {
@@ -313,6 +384,8 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-surface-container-lowest/50 transition-colors group";
                 
+                const destUrl = batch.dest_url || batch.destUrl || '#';
+
                 tr.innerHTML = `
                     <td class="px-6 py-5">
                         <div class="flex items-center gap-3">
@@ -325,8 +398,8 @@
                     <td class="px-6 py-5 font-body-sm text-body-sm text-secondary">${batch.date}</td>
                     <td class="px-6 py-5 text-center font-code-sm text-code-sm">${batch.count}</td>
                     <td class="px-6 py-5">
-                        <a href="${batch.destUrl}" target="_blank" class="flex items-center gap-1 text-tertiary hover:underline font-body-sm text-body-sm">
-                            <span class="truncate max-w-[200px]">${batch.destUrl}</span>
+                        <a href="${destUrl}" target="_blank" class="flex items-center gap-1 text-tertiary hover:underline font-body-sm text-body-sm">
+                            <span class="truncate max-w-[200px]">${destUrl}</span>
                             <span class="material-symbols-outlined text-[16px]">open_in_new</span>
                         </a>
                     </td>
@@ -338,6 +411,12 @@
                     </td>
                     <td class="px-6 py-5 text-right">
                         <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="p-2 hover:bg-surface-container-high rounded-lg text-secondary hover:text-primary transition-colors btn-view" data-id="${batch.id}" title="${t('hist_btn_view')}">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                            <button class="p-2 hover:bg-surface-container-high rounded-lg text-secondary hover:text-primary transition-colors btn-reuse" data-id="${batch.id}" title="${t('hist_btn_reuse')}">
+                                <span class="material-symbols-outlined">autorenew</span>
+                            </button>
                             <button class="p-2 hover:bg-error-container/20 rounded-lg text-secondary hover:text-error transition-colors btn-delete" data-id="${batch.id}" title="${t('hist_btn_delete')}">
                                 <span class="material-symbols-outlined">delete</span>
                             </button>
@@ -349,9 +428,28 @@
 
             /* Connect delete buttons */
             document.querySelectorAll('.btn-delete').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     const id = btn.getAttribute('data-id');
                     deleteBatch(id);
+                });
+            });
+
+            /* Connect view buttons */
+            document.querySelectorAll('.btn-view').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    openDetailsModal(id);
+                });
+            });
+
+            /* Connect reuse buttons */
+            document.querySelectorAll('.btn-reuse').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.getAttribute('data-id');
+                    window.location.href = `../novo_lote_pinautomate/code.html?clone=${id}`;
                 });
             });
 
@@ -369,17 +467,166 @@
 
         function deleteBatch(id) {
             if (confirm(t('alert_delete_batch_confirm'))) {
-                const historyFiltered = history.filter(b => b.id !== id);
-                localStorage.setItem('pinautomate_history', JSON.stringify(historyFiltered));
-                loadHistory();
+                const formData = new FormData();
+                formData.append('id', id);
+                
+                fetch('../delete_batch.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success) {
+                        loadHistory();
+                    } else {
+                        deleteBatchFallback(id);
+                    }
+                })
+                .catch(e => {
+                    console.error("Failed to delete from DB, trying local delete:", e);
+                    deleteBatchFallback(id);
+                });
             }
         }
+
+        function deleteBatchFallback(id) {
+            const historyFiltered = history.filter(b => b.id !== id);
+            localStorage.setItem('pinautomate_history', JSON.stringify(historyFiltered));
+            loadHistory();
+        }
+
+        /* Details Modal logic */
+        function openDetailsModal(id) {
+            const batch = history.find(b => b.id === id);
+            if (!batch) return;
+
+            activeDetailsBatchId = id;
+            document.getElementById('details-modal-title').innerText = batch.name;
+            document.getElementById('details-modal-subtitle').innerText = `${batch.date} • ${batch.count} pins`;
+            
+            document.getElementById('details-keyword').innerText = batch.keyword || '-';
+            document.getElementById('details-board').innerText = batch.board || '-';
+            document.getElementById('details-base-url').innerText = batch.baseUrl || batch.base_url || '-';
+
+            const pinsContainer = document.getElementById('details-pins-container');
+            pinsContainer.innerHTML = '<div class="p-4 text-center text-secondary font-body-md">Carregando detalhes dos pins...</div>';
+            document.getElementById('details-modal').classList.remove('hidden');
+
+            // Fetch pins details from server
+            fetch(`../get_batch_details.php?id=${id}&t=` + Date.now())
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success && res.pins && res.pins.length > 0) {
+                        renderPinsList(res.pins);
+                    } else {
+                        // Fallback to local pins metadata if it was saved locally
+                        if (batch.pins && batch.pins.length > 0) {
+                            renderPinsList(batch.pins);
+                        } else {
+                            pinsContainer.innerHTML = `
+                                <div class="p-6 text-center text-secondary border border-dashed border-outline-variant/30 rounded-xl bg-surface-container-low font-body-md">
+                                    ${t('hist_modal_no_pins')}
+                                </div>
+                            `;
+                        }
+                    }
+                })
+                .catch(e => {
+                    console.error("Failed to load pins details:", e);
+                    if (batch.pins && batch.pins.length > 0) {
+                        renderPinsList(batch.pins);
+                    } else {
+                        pinsContainer.innerHTML = `
+                            <div class="p-6 text-center text-secondary border border-dashed border-outline-variant/30 rounded-xl bg-surface-container-low font-body-md">
+                                ${t('hist_modal_no_pins')}
+                            </div>
+                        `;
+                    }
+                });
+        }
+
+        function renderPinsList(pins) {
+            const pinsContainer = document.getElementById('details-pins-container');
+            pinsContainer.innerHTML = '';
+
+            pins.forEach((pin, i) => {
+                const row = document.createElement('div');
+                row.className = "p-4 bg-surface-container-low border border-outline-variant/20 rounded-xl flex flex-col md:flex-row gap-4";
+                
+                const num = String(i + 1).padStart(2, '0');
+                
+                // Show thumbnail image if available
+                let imgHtml = '';
+                if (pin.image_path) {
+                    const relativeSrc = '../' + pin.image_path;
+                    imgHtml = `
+                        <div class="flex-shrink-0 w-24 aspect-[2/3] rounded-lg overflow-hidden border border-outline-variant shadow-sm bg-white">
+                            <img src="${relativeSrc}" class="w-full h-full object-cover" alt="Pin original image" onerror="this.src='https://placehold.co/80x120?text=Pin'"/>
+                        </div>
+                    `;
+                } else {
+                    imgHtml = `
+                        <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold text-lg">
+                            ${num}
+                        </div>
+                    `;
+                }
+
+                row.innerHTML = `
+                    ${imgHtml}
+                    <div class="flex-1 space-y-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                                <span class="text-[11px] text-secondary font-label-md uppercase block">Topo Linha 1</span>
+                                <span class="font-body-sm text-on-surface">${pin.top_line_1 || pin.topLine1 || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-secondary font-label-md uppercase block">Topo Linha 2</span>
+                                <span class="font-body-sm text-on-surface font-semibold">${pin.top_line_2 || pin.topLine2 || '-'}</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2 pt-1 border-t border-outline-variant/10">
+                            <div>
+                                <span class="text-[11px] text-secondary font-label-md uppercase block">Título do Card</span>
+                                <span class="font-body-sm text-primary font-bold">${pin.card_title || pin.cardTitle || '-'}</span>
+                            </div>
+                            <div>
+                                <span class="text-[11px] text-secondary font-label-md uppercase block">Subtítulo do Card</span>
+                                <span class="font-body-sm text-on-surface">${pin.card_subtitle || pin.cardSubtitle || '-'}</span>
+                            </div>
+                        </div>
+                        <div class="pt-1 border-t border-outline-variant/10">
+                            <span class="text-[11px] text-secondary font-label-md uppercase block">Descrição</span>
+                            <p class="font-body-sm text-on-secondary-container leading-relaxed whitespace-pre-line">${pin.description || '-'}</p>
+                        </div>
+                    </div>
+                `;
+                pinsContainer.appendChild(row);
+            });
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('details-modal').classList.add('hidden');
+            activeDetailsBatchId = null;
+        }
+
+        document.getElementById('details-modal-close-x').addEventListener('click', closeDetailsModal);
+        document.getElementById('details-modal-close').addEventListener('click', closeDetailsModal);
+        document.getElementById('details-modal-reuse').addEventListener('click', () => {
+            if (activeDetailsBatchId) {
+                window.location.href = `../novo_lote_pinautomate/code.html?clone=${activeDetailsBatchId}`;
+            }
+        });
 
         /* Search */
         const searchInput = document.getElementById('search-input');
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
-            const filtered = history.filter(b => b.name.toLowerCase().includes(query) || b.destUrl.toLowerCase().includes(query) || b.board.toLowerCase().includes(query));
+            const filtered = history.filter(b => 
+                (b.name || '').toLowerCase().includes(query) || 
+                (b.dest_url || b.destUrl || '').toLowerCase().includes(query) || 
+                (b.board || '').toLowerCase().includes(query)
+            );
             renderTable(filtered);
         });
     </script>
