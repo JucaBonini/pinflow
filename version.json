@@ -1,5 +1,5 @@
 {
-  "version": "2.1.0",
+  "version": "2.1.1",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.1.0 - Integração com banco de dados MySQL para histórico e reutilização de lotes. Adicionado visualizador de detalhes com imagens reais no histórico e preenchimento automático inteligente de templates ao reutilizar lotes."
+  "changelog": "Versão 2.1.1 - Correção nos cabeçalhos do CSV gerado para garantir compatibilidade 100% com o validador de importação em massa do Pinterest em português (adicionadas as colunas Título do vídeo, Data de publicação e Miniatura)."
 }

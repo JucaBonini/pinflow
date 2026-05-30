@@ -66,6 +66,9 @@ const translations = {
         csv_link: "Link",
         csv_media_url: "URL da mídia",
         csv_board: "Pasta do Pinterest",
+        csv_video_title: "Título do vídeo",
+        csv_publish_date: "Data de publicação",
+        csv_thumbnail: "Miniatura",
 
         // Edit Modal
         modal_title: "Editar Detalhes do Pin",
@@ -243,6 +246,9 @@ const translations = {
         csv_link: "Link",
         csv_media_url: "Media URL",
         csv_board: "Pinterest board",
+        csv_video_title: "Video title",
+        csv_publish_date: "Publish date",
+        csv_thumbnail: "Thumbnail",
 
         // Edit Modal
         modal_title: "Edit Pin Details",
@@ -420,6 +426,9 @@ const translations = {
         csv_link: "Enlace",
         csv_media_url: "URL de la imagen",
         csv_board: "Tablero",
+        csv_video_title: "Título del vídeo",
+        csv_publish_date: "Fecha de publicación",
+        csv_thumbnail: "Miniatura",
 
         // Edit Modal
         modal_title: "Editar Detalles del Pin",
