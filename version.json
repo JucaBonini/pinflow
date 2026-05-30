@@ -1,5 +1,5 @@
 {
-  "version": "2.2.5",
+  "version": "2.5.6",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.2.5 - Otimização do fluxo de geração de lotes (download apenas do CSV) e implementação de download de ZIP com imagens sob demanda diretamente pelo Histórico."
+  "changelog": "Versão 2.5.6 - Otimização do fluxo de geração de lotes (download apenas do CSV) e implementação de download de ZIP com imagens sob demanda diretamente pelo Histórico."
 }
