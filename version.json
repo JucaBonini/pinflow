@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.2.1",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.2.0 - Adiciona hospedagem automatizada de imagens (originais e editadas em subpastas únicas do servidor) e exclusão recursiva e segura do lote excluído do histórico."
+  "changelog": "Versão 2.2.1 - Corrige o erro de importação em lote no Pinterest ao reordenar as colunas do CSV para o padrão oficial e limpar quebras de linha nas descrições."
 }

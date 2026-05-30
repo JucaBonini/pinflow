@@ -1106,17 +1106,21 @@
                 mediaBaseUrl = rootBaseUrl + 'imagens-pins/' + batchId + '/';
             }
 
+            const cleanCSVVal = (val) => {
+                if (val === null || val === undefined) return '';
+                return String(val).replace(/[\r\n]+/g, ' ').trim();
+            };
+
             const zip = new JSZip();
             const csvRows = [
                 [
                     "Title",
-                    "Description",
-                    "Link",
                     "Media URL",
                     "Pinterest board",
-                    "Video title",
-                    "Publish date",
                     "Thumbnail",
+                    "Description",
+                    "Link",
+                    "Publish date",
                     "Keywords"
                 ] /* Header */
             ];
@@ -1133,15 +1137,14 @@
                 /* Add to CSV rows */
                 const mediaUrl = mediaBaseUrl + filename;
                 csvRows.push([
-                    pinObj.cardTitle,
-                    pinObj.description,
-                    destUrl,
-                    mediaUrl,
-                    board,
-                    "",
-                    "",
-                    "",
-                    ""
+                    cleanCSVVal(pinObj.cardTitle),
+                    cleanCSVVal(mediaUrl),
+                    cleanCSVVal(board),
+                    "", // Thumbnail
+                    cleanCSVVal(pinObj.description),
+                    cleanCSVVal(destUrl),
+                    "", // Publish date
+                    ""  // Keywords
                 ]);
             }
 
