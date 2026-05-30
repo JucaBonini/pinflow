@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 
 <html class="light" lang="en"><head>
+<script src="../auth.js"></script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Settings - PinAutomate</title>
@@ -315,36 +316,69 @@
 </section>
 <!-- Profile Management -->
 <section class="col-span-12 lg:col-span-5 bg-surface-container-lowest rounded-[16px] p-md card-shadow border border-outline-variant/20">
-<div class="flex items-center gap-3 mb-8">
+<div class="flex items-center gap-3 mb-6">
 <span class="material-symbols-outlined text-primary">person_outline</span>
 <h3 class="font-headline-md text-headline-md" data-i18n="settings_profile_security">Security &amp; Profile</h3>
 </div>
 <div class="space-y-6">
-<div class="flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/30">
-<div class="relative">
-<img alt="Profile" class="w-16 h-16 rounded-2xl object-cover" data-alt="A professional, clean studio portrait of a modern creator in high-key lighting, emphasizing a minimal aesthetic with soft shadows and a neutral background. The lighting is sophisticated, focusing on detail and clarity in a light-mode color palette that feels fresh and tech-forward." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6zAEHspPlmJrLOUDzNlBnyVsPuhuxUAn1rCIbwGj8rL_AJiyuZl23Xke1ChgaK_ugDrqz-WyGAPoX4Xt-mQ1gchMxZdX93y4NrXZCAjLH0w-0G1mIYT7ZusAqsrbartqsVh-LEY_jMTxxIGWqdTwYUMUUTdAqlWPUaNPHfE06aDiQuuMy36bJs6tVz4A5VsJGsJCPGM0FKV36IyCPCnZcBN8aRQ8Sq0FTyJImZFxZv3NdDPVrwocvEW_2qfWII7zhWwucDa9ksXo"/>
-<button class="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-lg shadow-sm border border-outline-variant/30">
-<span class="material-symbols-outlined text-[16px] text-primary">edit</span>
-</button>
-</div>
-<div>
-<p class="font-label-md text-label-md">Alex Rivera</p>
-<p class="text-body-sm text-secondary">alex.rivera@design.com</p>
-</div>
-</div>
-<div>
-<label class="block font-label-md text-label-md mb-2 text-on-surface" data-i18n="settings_password">Current Password</label>
-<input class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-3 px-4 font-body-sm text-body-sm" placeholder="••••••••••••" type="password"/>
-</div>
-<div class="pt-2">
-<button class="w-full border border-outline-variant text-on-surface py-3 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-standard" data-i18n="settings_btn_password">
-                                Change Password
-                            </button>
-</div>
-<div class="pt-6 border-t border-outline-variant/30">
-<p class="text-[12px] font-label-md text-error mb-3 uppercase tracking-widest" data-i18n="settings_danger_zone">Danger Zone</p>
-<button class="text-error font-label-md text-label-md hover:underline" data-i18n="settings_deactivate">Deactivate account</button>
-</div>
+    <!-- Profile Customization Form -->
+    <div class="space-y-4 pb-6 border-b border-outline-variant/30">
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-secondary">Dados do Usuário</h4>
+        
+        <div class="flex items-center gap-4 p-4 rounded-xl bg-surface-container-low border border-outline-variant/30">
+            <div class="relative cursor-pointer group" id="btn-select-avatar">
+                <img id="profile-avatar-preview" alt="Profile" class="w-16 h-16 rounded-2xl object-cover border border-outline-variant/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6zAEHspPlmJrLOUDzNlBnyVsPuhuxUAn1rCIbwGj8rL_AJiyuZl23Xke1ChgaK_ugDrqz-WyGAPoX4Xt-mQ1gchMxZdX93y4NrXZCAjLH0w-0G1mIYT7ZusAqsrbartqsVh-LEY_jMTxxIGWqdTwYUMUUTdAqlWPUaNPHfE06aDiQuuMy36bJs6tVz4A5VsJGsJCPGM0FKV36IyCPCnZcBN8aRQ8Sq0FTyJImZFxZv3NdDPVrwocvEW_2qfWII7zhWwucDa9ksXo"/>
+                <div class="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[20px] text-white">photo_camera</span>
+                </div>
+                <input type="file" id="profile-avatar-input" accept="image/*" class="hidden">
+            </div>
+            <div class="flex-1 min-w-0">
+                <p id="profile-name-display" class="font-label-md text-label-md truncate">Administrador</p>
+                <p id="profile-username-display" class="text-body-sm text-secondary truncate">@admin</p>
+            </div>
+        </div>
+
+        <div>
+            <label class="block font-label-md text-label-md mb-1.5 text-on-surface">Nome Completo</label>
+            <input id="profile-name-input" type="text" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-2 px-3 font-body-sm text-body-sm" placeholder="Nome do usuário">
+        </div>
+
+        <div>
+            <label class="block font-label-md text-label-md mb-1.5 text-on-surface">Nick / Usuário (Login)</label>
+            <input id="profile-username-input" type="text" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-2 px-3 font-body-sm text-body-sm" placeholder="Ex: admin">
+        </div>
+
+        <div id="profile-status-message" class="text-xs font-semibold hidden py-2 px-3 rounded-lg"></div>
+
+        <button id="btn-save-profile" class="w-full bg-primary text-white py-2.5 rounded-lg font-label-md text-label-md hover:brightness-110 transition-standard active:scale-95">
+            Salvar Dados de Perfil
+        </button>
+    </div>
+
+    <!-- Password Modification Form -->
+    <div class="space-y-4">
+        <h4 class="text-xs font-semibold uppercase tracking-wider text-secondary">Alterar Senha</h4>
+        <div>
+            <label class="block font-label-md text-label-md mb-1.5 text-on-surface" data-i18n="settings_current_password">Current Password</label>
+            <input id="current-password" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-2.5 px-4 font-body-sm text-body-sm" placeholder="••••••••••••" type="password"/>
+        </div>
+        <div>
+            <label class="block font-label-md text-label-md mb-1.5 text-on-surface" data-i18n="settings_new_password">New Password</label>
+            <input id="new-password" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-2.5 px-4 font-body-sm text-body-sm" placeholder="••••••••••••" type="password"/>
+        </div>
+        <div>
+            <label class="block font-label-md text-label-md mb-1.5 text-on-surface" data-i18n="settings_confirm_password">Confirm New Password</label>
+            <input id="confirm-password" class="w-full bg-surface-container-low border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg py-2.5 px-4 font-body-sm text-body-sm" placeholder="••••••••••••" type="password"/>
+        </div>
+        <div id="password-status-message" class="text-xs font-semibold hidden py-2 px-3 rounded-lg"></div>
+        
+        <div class="pt-2">
+            <button id="btn-change-password" class="w-full border border-outline-variant text-on-surface py-3 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-standard" data-i18n="settings_btn_password">
+                Change Password
+            </button>
+        </div>
+    </div>
 </div>
 </section>
 <!-- Git Repository & Updates Settings (Hidden from view) -->
@@ -541,6 +575,182 @@
                         dropdown.classList.add('hidden');
                     }
                 });
+
+                // Change Password logic
+                const btnChangePassword = document.getElementById('btn-change-password');
+                const currentPassInput = document.getElementById('current-password');
+                const newPassInput = document.getElementById('new-password');
+                const confirmPassInput = document.getElementById('confirm-password');
+                const statusMessage = document.getElementById('password-status-message');
+
+                if (btnChangePassword && currentPassInput && newPassInput && confirmPassInput && statusMessage) {
+                    btnChangePassword.addEventListener('click', async () => {
+                        // Reset status
+                        statusMessage.classList.add('hidden');
+                        statusMessage.className = 'text-xs font-semibold hidden py-2 px-3 rounded-lg';
+                        statusMessage.textContent = '';
+
+                        const currentVal = currentPassInput.value;
+                        const newVal = newPassInput.value;
+                        const confirmVal = confirmPassInput.value;
+
+                        if (!currentVal || !newVal || !confirmVal) {
+                            showStatus('Por favor, preencha todos os campos.', 'error');
+                            return;
+                        }
+
+                        if (newVal.length < 6) {
+                            showStatus('A nova senha deve ter no mínimo 6 caracteres.', 'error');
+                            return;
+                        }
+
+                        if (newVal !== confirmVal) {
+                            showStatus('As novas senhas não coincidem.', 'error');
+                            return;
+                        }
+
+                        // Send request
+                        btnChangePassword.disabled = true;
+                        const originalText = btnChangePassword.textContent;
+                        btnChangePassword.textContent = 'Atualizando...';
+
+                        try {
+                            const formData = new FormData();
+                            formData.append('current_password', currentVal);
+                            formData.append('new_password', newVal);
+
+                            const response = await fetch('../change_password.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                showStatus('Senha alterada com sucesso!', 'success');
+                                currentPassInput.value = '';
+                                newPassInput.value = '';
+                                confirmPassInput.value = '';
+                            } else {
+                                showStatus(data.error || 'Erro ao alterar a senha.', 'error');
+                            }
+                        } catch (err) {
+                            showStatus('Erro de conexão com o servidor.', 'error');
+                            console.error(err);
+                        } finally {
+                            btnChangePassword.disabled = false;
+                            btnChangePassword.textContent = originalText;
+                        }
+                    });
+
+                    function showStatus(text, type) {
+                        statusMessage.textContent = text;
+                        statusMessage.classList.remove('hidden');
+                        if (type === 'success') {
+                            statusMessage.classList.add('bg-green-100', 'text-green-800');
+                        } else {
+                            statusMessage.classList.add('bg-red-950/40', 'text-red-200', 'border', 'border-red-500/30');
+                        }
+                    }
+                }
+
+                // Profile edit logic
+                const btnSelectAvatar = document.getElementById('btn-select-avatar');
+                const avatarInput = document.getElementById('profile-avatar-input');
+                const avatarPreview = document.getElementById('profile-avatar-preview');
+                const profileNameDisplay = document.getElementById('profile-name-display');
+                const profileUsernameDisplay = document.getElementById('profile-username-display');
+                const profileNameInput = document.getElementById('profile-name-input');
+                const profileUsernameInput = document.getElementById('profile-username-input');
+                const profileStatus = document.getElementById('profile-status-message');
+                const btnSaveProfile = document.getElementById('btn-save-profile');
+
+                if (btnSaveProfile && profileNameInput && profileUsernameInput && profileStatus) {
+                    const populateProfile = () => {
+                        const session = window.userSession;
+                        if (session) {
+                            profileNameInput.value = session.name || '';
+                            profileUsernameInput.value = session.username || '';
+                            profileNameDisplay.textContent = session.name || session.username;
+                            profileUsernameDisplay.textContent = '@' + session.username;
+                            if (session.avatar_path) {
+                                avatarPreview.src = '../' + session.avatar_path;
+                            }
+                        }
+                    };
+
+                    // Wait for window.userSession to populate from check_auth response
+                    setTimeout(populateProfile, 200);
+
+                    if (btnSelectAvatar && avatarInput) {
+                        btnSelectAvatar.addEventListener('click', () => avatarInput.click());
+                        avatarInput.addEventListener('change', (e) => {
+                            if (e.target.files && e.target.files[0]) {
+                                avatarPreview.src = URL.createObjectURL(e.target.files[0]);
+                            }
+                        });
+                    }
+
+                    btnSaveProfile.addEventListener('click', async () => {
+                        profileStatus.classList.add('hidden');
+                        profileStatus.className = 'text-xs font-semibold hidden py-2 px-3 rounded-lg';
+                        profileStatus.textContent = '';
+
+                        const nameVal = profileNameInput.value.trim();
+                        const usernameVal = profileUsernameInput.value.trim();
+
+                        if (!nameVal || !usernameVal) {
+                            showProfileStatus('Nome e Nick/Usuário são obrigatórios.', 'error');
+                            return;
+                        }
+
+                        btnSaveProfile.disabled = true;
+                        const originalText = btnSaveProfile.textContent;
+                        btnSaveProfile.textContent = 'Salvando...';
+
+                        try {
+                            const formData = new FormData();
+                            formData.append('name', nameVal);
+                            formData.append('username', usernameVal);
+                            if (avatarInput.files && avatarInput.files[0]) {
+                                formData.append('avatar', avatarInput.files[0]);
+                            }
+
+                            const response = await fetch('../update_profile.php', {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                showProfileStatus('Perfil atualizado com sucesso! Recarregando a página...', 'success');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                showProfileStatus(data.error || 'Erro ao atualizar perfil.', 'error');
+                                btnSaveProfile.disabled = false;
+                                btnSaveProfile.textContent = originalText;
+                            }
+                        } catch (err) {
+                            showProfileStatus('Erro de conexão com o servidor.', 'error');
+                            console.error(err);
+                            btnSaveProfile.disabled = false;
+                            btnSaveProfile.textContent = originalText;
+                        }
+                    });
+
+                    function showProfileStatus(text, type) {
+                        profileStatus.textContent = text;
+                        profileStatus.classList.remove('hidden');
+                        if (type === 'success') {
+                            profileStatus.classList.add('bg-green-100', 'text-green-800');
+                        } else {
+                            profileStatus.classList.add('bg-red-950/40', 'text-red-200', 'border', 'border-red-500/30');
+                        }
+                    }
+                }
             }
         });
     </script>

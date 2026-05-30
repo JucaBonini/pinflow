@@ -1,6 +1,16 @@
 <?php
 // save_batch.php - Save batch settings, copy/upload images, and store records in MySQL
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    exit;
+}
+
 header('Content-Type: application/json');
 require_once 'db.php';
 
@@ -26,6 +36,29 @@ if (empty($batchId) || empty($name) || empty($destUrl) || empty($pinsDataJson)) 
 $pinsData = json_decode($pinsDataJson, true);
 if (!is_array($pinsData)) {
     echo json_encode(['success' => false, 'error' => 'Invalid pins metadata format']);
+    exit;
+}
+
+// Fetch user plan limit
+try {
+    $stmtLimit = $pdo->prepare("
+        SELECT p.max_pins_per_batch 
+        FROM users u 
+        LEFT JOIN plans p ON u.plan_id = p.id 
+        WHERE u.id = ? 
+        LIMIT 1
+    ");
+    $stmtLimit->execute([$_SESSION['user_id']]);
+    $maxPins = $stmtLimit->fetchColumn();
+    if ($maxPins === false || $maxPins === null) {
+        $maxPins = 5; // Default fallback to Free limit
+    }
+} catch (Exception $e) {
+    $maxPins = 5;
+}
+
+if (count($pinsData) > $maxPins) {
+    echo json_encode(['success' => false, 'error' => 'Limite excedido. Seu plano atual permite gerar no máximo ' . $maxPins . ' pins por lote.']);
     exit;
 }
 

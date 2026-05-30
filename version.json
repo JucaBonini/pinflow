@@ -1,5 +1,5 @@
 {
-  "version": "2.2.3",
+  "version": "2.2.4",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.2.3 - Garante a integridade de lotes clonados/reutilizados (incluindo lotes antigos) ao sempre enviar as artes geradas no canvas diretamente do cliente."
+  "changelog": "Versão 2.2.4 - Sistema de Autenticação com controle de acesso, Painel Admin para gerenciamento de Usuários e Planos (com limites de pins) e personalização de perfil (Nome, Nick e Avatar)."
 }

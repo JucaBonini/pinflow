@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle - Creator Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet">
+    
+    <!-- Load Auth Check to block unauthorized users immediately -->
+    <script src="auth.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red: '#b7001a',
+                            redHover: '#e60023',
+                            bg: '#050c16',
+                            card: '#0b1625',
+                        }
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 10% 20%, rgba(183, 0, 26, 0.1) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(28, 110, 225, 0.08) 0%, transparent 45%),
+                        #050c16;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(11, 22, 37, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="p-6 md:p-10 antialiased text-slate-200">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div class="flex items-center gap-3">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-red/10 border border-brand-red/30">
+                    <span class="material-symbols-outlined text-brand-red text-2xl">admin_panel_settings</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold font-outfit text-white">Painel de Controle Admin</h1>
+                    <p class="text-xs text-slate-400">Gerenciamento de usuários, planos, preços e limites de pins</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="dashboard_pinautomate/code.html" class="flex items-center gap-2 px-5 py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 rounded-xl font-semibold text-xs transition-all">
+                    <span class="material-symbols-outlined text-sm">dashboard</span>
+                    <span>Modo Usuário (Criador)</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-slate-800 mb-8 gap-4">
+            <button id="tab-users" class="px-5 py-3 text-sm font-semibold border-b-2 border-brand-red text-white flex items-center gap-2 transition-all">
+                <span class="material-symbols-outlined text-lg">group</span>
+                <span>Usuários</span>
+            </button>
+            <button id="tab-plans" class="px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition-all">
+                <span class="material-symbols-outlined text-lg">payments</span>
+                <span>Planos e Preços</span>
+            </button>
+        </div>
+
+        <!-- Section: Users Management -->
+        <section id="section-users" class="space-y-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold font-outfit text-white">Gerenciar Usuários</h2>
+                <button id="btn-add-user" class="flex items-center gap-1.5 px-4 py-2 bg-brand-red hover:bg-brand-redHover active:scale-95 text-white rounded-lg font-semibold text-xs transition-all shadow-md shadow-brand-red/10">
+                    <span class="material-symbols-outlined text-sm">person_add</span>
+                    <span>Novo Usuário</span>
+                </button>
+            </div>
+
+            <!-- Users Table -->
+            <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/80 border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Nome</th>
+                                <th class="px-6 py-4">Usuário</th>
+                                <th class="px-6 py-4">Cargo</th>
+                                <th class="px-6 py-4">Plano Atual</th>
+                                <th class="px-6 py-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody" class="divide-y divide-slate-800/50 text-sm">
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-slate-500">Carregando usuários...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Plans Management -->
+        <section id="section-plans" class="space-y-6 hidden">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-bold font-outfit text-white">Configurar Planos</h2>
+                <button id="btn-add-plan" class="flex items-center gap-1.5 px-4 py-2 bg-brand-red hover:bg-brand-redHover active:scale-95 text-white rounded-lg font-semibold text-xs transition-all shadow-md shadow-brand-red/10">
+                    <span class="material-symbols-outlined text-sm">add_card</span>
+                    <span>Novo Plano</span>
+                </button>
+            </div>
+
+            <!-- Plans Table -->
+            <div class="glass-card rounded-2xl overflow-hidden border border-slate-800">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/80 border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                <th class="px-6 py-4">ID</th>
+                                <th class="px-6 py-4">Nome do Plano</th>
+                                <th class="px-6 py-4">Valor Mensal</th>
+                                <th class="px-6 py-4">Limite de Pins por Lote</th>
+                                <th class="px-6 py-4 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plans-tbody" class="divide-y divide-slate-800/50 text-sm">
+                            <tr>
+                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">Carregando planos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal: User Form -->
+    <div id="modal-user" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="glass-card rounded-3xl w-full max-w-md overflow-hidden border border-slate-800 shadow-xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/40">
+                <h3 id="modal-user-title" class="text-lg font-bold font-outfit text-white">Criar Novo Usuário</h3>
+                <button id="modal-user-close" class="p-1 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-user" class="p-6 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
+                <input type="hidden" id="user-id" name="id">
+                
+                <div>
+                    <label for="user-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Nome Completo</label>
+                    <input type="text" id="user-name" name="name" required
+                           class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium">
+                </div>
+
+                <div>
+                    <label for="user-username" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Usuário (Login)</label>
+                    <input type="text" id="user-username" name="username" required
+                           class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium">
+                </div>
+
+                <div>
+                    <label for="user-password" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Senha</label>
+                    <input type="password" id="user-password" name="password"
+                           class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium"
+                           placeholder="Deixe em branco para não alterar">
+                    <p id="user-password-hint" class="text-[10px] text-slate-500 mt-1 hidden">* Obrigatória para novos usuários.</p>
+                </div>
+
+                <div>
+                    <label for="user-role" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Cargo / Permissão</label>
+                    <select id="user-role" name="role" required
+                            class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium">
+                        <option value="user">Usuário Padrão</option>
+                        <option value="super_admin">Super Administrador</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="user-plan" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Plano</label>
+                    <select id="user-plan" name="plan_id"
+                            class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium">
+                        <!-- Plans will load dynamically -->
+                    </select>
+                </div>
+                
+                <div id="user-error" class="hidden p-3 rounded-lg bg-red-950/40 border border-red-500/30 text-red-200 text-xs"></div>
+                
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" id="btn-user-cancel" class="px-5 py-2 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition-all text-xs font-semibold">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-brand-red hover:bg-brand-redHover text-white rounded-lg transition-all text-xs font-semibold">Salvar Usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Plan Form -->
+    <div id="modal-plan" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="glass-card rounded-3xl w-full max-w-md overflow-hidden border border-slate-800 shadow-xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-950/40">
+                <h3 id="modal-plan-title" class="text-lg font-bold font-outfit text-white">Criar Novo Plano</h3>
+                <button id="modal-plan-close" class="p-1 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="form-plan" class="p-6 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
+                <input type="hidden" id="plan-id" name="id">
+                
+                <div>
+                    <label for="plan-name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Nome do Plano</label>
+                    <input type="text" id="plan-name" name="name" required
+                           class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium">
+                </div>
+
+                <div>
+                    <label for="plan-price" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Valor Mensal (R$)</label>
+                    <input type="number" step="0.01" min="0" id="plan-price" name="price" required
+                           class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium"
+                           placeholder="0.00">
+                </div>
+
+                <div>
+                    <label for="plan-limits" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Limite de Pins por Lote</label>
+                    <input type="number" min="1" id="plan-limits" name="max_pins_per_batch" required
+                           class="w-full bg-slate-900/80 border border-slate-700/60 rounded-xl py-2.5 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-brand-red text-sm font-medium"
+                           placeholder="Ex: 10">
+                </div>
+                
+                <div id="plan-error" class="hidden p-3 rounded-lg bg-red-950/40 border border-red-500/30 text-red-200 text-xs"></div>
+                
+                <div class="pt-4 flex justify-end gap-3">
+                    <button type="button" id="btn-plan-cancel" class="px-5 py-2 border border-slate-700 text-slate-300 rounded-lg hover:bg-slate-800 transition-all text-xs font-semibold">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 bg-brand-red hover:bg-brand-redHover text-white rounded-lg transition-all text-xs font-semibold">Salvar Plano</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script logic -->
+    <script>
+        let cachedPlans = [];
+        let cachedUsers = [];
+
+        // Tab Switching
+        const tabUsers = document.getElementById('tab-users');
+        const tabPlans = document.getElementById('tab-plans');
+        const secUsers = document.getElementById('section-users');
+        const secPlans = document.getElementById('section-plans');
+
+        tabUsers.addEventListener('click', () => {
+            tabUsers.className = "px-5 py-3 text-sm font-semibold border-b-2 border-brand-red text-white flex items-center gap-2 transition-all";
+            tabPlans.className = "px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition-all";
+            secUsers.classList.remove('hidden');
+            secPlans.classList.add('hidden');
+            loadUsers();
+        });
+
+        tabPlans.addEventListener('click', () => {
+            tabPlans.className = "px-5 py-3 text-sm font-semibold border-b-2 border-brand-red text-white flex items-center gap-2 transition-all";
+            tabUsers.className = "px-5 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition-all";
+            secPlans.classList.remove('hidden');
+            secUsers.classList.add('hidden');
+            loadPlans();
+        });
+
+        // Initialize lists
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPlans(); // load plans first so select lists are populated
+            loadUsers();
+        });
+
+        // Load Plans from API
+        async function loadPlans() {
+            try {
+                const response = await fetch('admin_plans.php?action=list&t=' + Date.now());
+                const data = await response.json();
+                if (data.success) {
+                    cachedPlans = data.plans || [];
+                    renderPlansTable();
+                    populatePlansSelects();
+                } else {
+                    console.error('Error loading plans:', data.error);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Render Plans Table
+        function renderPlansTable() {
+            const tbody = document.getElementById('plans-tbody');
+            tbody.innerHTML = '';
+            
+            if (cachedPlans.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">Nenhum plano cadastrado.</td></tr>`;
+                return;
+            }
+
+            cachedPlans.forEach(plan => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/30 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-semibold text-slate-400">#${plan.id}</td>
+                    <td class="px-6 py-4 text-white font-bold">${plan.name}</td>
+                    <td class="px-6 py-4 font-medium text-emerald-400">R$ ${parseFloat(plan.price).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-slate-300 font-semibold">${plan.max_pins_per_batch === 9999 ? 'Ilimitado' : plan.max_pins_per_batch + ' pins/lote'}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="editPlan(${plan.id})" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" title="Editar">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </button>
+                            <button onclick="deletePlan(${plan.id})" class="p-1.5 hover:bg-red-950/40 rounded-lg text-slate-400 hover:text-red-400 transition-colors" title="Excluir">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Populate dynamic select list for user assignment
+        function populatePlansSelects() {
+            const select = document.getElementById('user-plan');
+            select.innerHTML = '<option value="">Sem Plano</option>';
+            cachedPlans.forEach(plan => {
+                const opt = document.createElement('option');
+                opt.value = plan.id;
+                opt.textContent = `${plan.name} (limite: ${plan.max_pins_per_batch === 9999 ? 'Ilimitado' : plan.max_pins_per_batch})`;
+                select.appendChild(opt);
+            });
+        }
+
+        // Load Users from API
+        async function loadUsers() {
+            try {
+                const response = await fetch('admin_users.php?action=list&t=' + Date.now());
+                const data = await response.json();
+                if (data.success) {
+                    cachedUsers = data.users || [];
+                    renderUsersTable();
+                } else {
+                    console.error('Error loading users:', data.error);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // Render Users Table
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-tbody');
+            tbody.innerHTML = '';
+            
+            if (cachedUsers.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-slate-500">Nenhum usuário cadastrado.</td></tr>`;
+                return;
+            }
+
+            cachedUsers.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/30 transition-colors";
+                
+                const isSuperAdmin = user.role === 'super_admin';
+                const roleBadge = isSuperAdmin 
+                    ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-950/50 text-red-400 border border-red-900/40">Super Admin</span>`
+                    : `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400">Usuário</span>`;
+
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-semibold text-slate-400">#${user.id}</td>
+                    <td class="px-6 py-4 text-white font-bold">${user.name}</td>
+                    <td class="px-6 py-4 text-slate-300 font-medium">${user.username}</td>
+                    <td class="px-6 py-4">${roleBadge}</td>
+                    <td class="px-6 py-4 font-medium text-indigo-300">${user.plan_name ? user.plan_name : '<span class="text-slate-600">Nenhum</span>'}</td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex justify-end gap-2">
+                            <button onclick="editUser(${user.id})" class="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" title="Editar">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </button>
+                            <button onclick="deleteUser(${user.id})" class="p-1.5 hover:bg-red-950/40 rounded-lg text-slate-400 hover:text-red-400 transition-colors" title="Excluir">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Modals Management
+        const modalUser = document.getElementById('modal-user');
+        const modalPlan = document.getElementById('modal-plan');
+        const formUser = document.getElementById('form-user');
+        const formPlan = document.getElementById('form-plan');
+        const userError = document.getElementById('user-error');
+        const planError = document.getElementById('plan-error');
+
+        // Add User
+        document.getElementById('btn-add-user').addEventListener('click', () => {
+            formUser.reset();
+            document.getElementById('user-id').value = '';
+            document.getElementById('modal-user-title').textContent = 'Criar Novo Usuário';
+            document.getElementById('user-password-hint').classList.remove('hidden');
+            document.getElementById('user-password').required = true;
+            userError.classList.add('hidden');
+            modalUser.classList.remove('hidden');
+        });
+
+        // Add Plan
+        document.getElementById('btn-add-plan').addEventListener('click', () => {
+            formPlan.reset();
+            document.getElementById('plan-id').value = '';
+            document.getElementById('modal-plan-title').textContent = 'Criar Novo Plano';
+            planError.classList.add('hidden');
+            modalPlan.classList.remove('hidden');
+        });
+
+        // Close functions
+        document.getElementById('modal-user-close').addEventListener('click', () => modalUser.classList.add('hidden'));
+        document.getElementById('btn-user-cancel').addEventListener('click', () => modalUser.classList.add('hidden'));
+        
+        document.getElementById('modal-plan-close').addEventListener('click', () => modalPlan.classList.add('hidden'));
+        document.getElementById('btn-plan-cancel').addEventListener('click', () => modalPlan.classList.add('hidden'));
+
+        // Edit User
+        function editUser(id) {
+            const user = cachedUsers.find(u => u.id === id);
+            if (!user) return;
+
+            document.getElementById('user-id').value = user.id;
+            document.getElementById('user-name').value = user.name;
+            document.getElementById('user-username').value = user.username;
+            document.getElementById('user-password').value = '';
+            document.getElementById('user-password').required = false; // not required when editing
+            document.getElementById('user-password-hint').classList.add('hidden');
+            document.getElementById('user-role').value = user.role;
+            document.getElementById('user-plan').value = user.plan_id || '';
+            
+            document.getElementById('modal-user-title').textContent = 'Editar Usuário';
+            userError.classList.add('hidden');
+            modalUser.classList.remove('hidden');
+        }
+
+        // Edit Plan
+        function editPlan(id) {
+            const plan = cachedPlans.find(p => p.id === id);
+            if (!plan) return;
+
+            document.getElementById('plan-id').value = plan.id;
+            document.getElementById('plan-name').value = plan.name;
+            document.getElementById('plan-price').value = plan.price;
+            document.getElementById('plan-limits').value = plan.max_pins_per_batch;
+
+            document.getElementById('modal-plan-title').textContent = 'Editar Plano';
+            planError.classList.add('hidden');
+            modalPlan.classList.remove('hidden');
+        }
+
+        // Save User Submit handler
+        formUser.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            userError.classList.add('hidden');
+
+            const id = document.getElementById('user-id').value;
+            const action = id ? 'update' : 'create';
+            const formData = new FormData(formUser);
+
+            try {
+                const response = await fetch(`admin_users.php?action=${action}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    modalUser.classList.add('hidden');
+                    loadUsers();
+                } else {
+                    userError.textContent = data.error || 'Erro ao salvar usuário.';
+                    userError.classList.remove('hidden');
+                }
+            } catch (err) {
+                userError.textContent = 'Erro de rede ou conexão.';
+                userError.classList.remove('hidden');
+            }
+        });
+
+        // Save Plan Submit handler
+        formPlan.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            planError.classList.add('hidden');
+
+            const id = document.getElementById('plan-id').value;
+            const action = id ? 'update' : 'create';
+            const formData = new FormData(formPlan);
+
+            try {
+                const response = await fetch(`admin_plans.php?action=${action}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    modalPlan.classList.add('hidden');
+                    await loadPlans();
+                    loadUsers(); // reload users since they display plan name
+                } else {
+                    planError.textContent = data.error || 'Erro ao salvar plano.';
+                    planError.classList.remove('hidden');
+                }
+            } catch (err) {
+                planError.textContent = 'Erro de rede ou conexão.';
+                planError.classList.remove('hidden');
+            }
+        });
+
+        // Delete User
+        async function deleteUser(id) {
+            if (confirm('Tem certeza que deseja excluir esta conta de usuário permanentemente?')) {
+                try {
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    const response = await fetch('admin_users.php?action=delete', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        loadUsers();
+                    } else {
+                        alert(data.error || 'Erro ao excluir usuário.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+
+        // Delete Plan
+        async function deletePlan(id) {
+            if (confirm('Tem certeza que deseja remover este plano?')) {
+                try {
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    const response = await fetch('admin_plans.php?action=delete', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        await loadPlans();
+                        loadUsers();
+                    } else {
+                        alert(data.error || 'Erro ao excluir plano.');
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
