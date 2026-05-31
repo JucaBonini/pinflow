@@ -1,5 +1,5 @@
 {
-  "version": "2.5.7",
+  "version": "2.5.8",
   "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.5.7 - Correção e otimização do fluxo de geração de lotes com envio de zip único para contornar limites de upload do servidor."
+  "changelog": "Versão 2.5.8 - Implementação de parâmetros UTM dinâmicos no CSV para burlar a deduplicação de links do Pinterest e adição de agendamento escalonado."
 }

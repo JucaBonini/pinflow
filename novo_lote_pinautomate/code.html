@@ -274,6 +274,42 @@
 </div>
 </div>
 </div>
+<div class="pt-2 border-t border-outline-variant/30">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-on-surface" data-i18n="nb_utm_tracking">Rastreamento UTM Automático</label>
+<label class="relative inline-flex items-center cursor-pointer select-none">
+<input type="checkbox" id="batch-utm-tracking" class="sr-only peer" checked>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-secondary after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary peer-checked:after:bg-on-primary"></div>
+</label>
+</div>
+<p class="mt-1 text-secondary font-body-sm text-[11px]" data-i18n="nb_utm_tracking_help">Adiciona parâmetros UTM para contornar a regra de link duplicado do Pinterest e permitir rastreio no Google Analytics.</p>
+</div>
+<div class="pt-2 border-t border-outline-variant/30 space-y-3">
+<label class="block font-label-md text-on-surface" data-i18n="nb_scheduling_title">Agendamento de Postagem (Opcional)</label>
+<div>
+<label class="block text-[11px] font-medium text-secondary mb-1" data-i18n="nb_start_date">Data/Hora de Início</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">calendar_today</span>
+<input id="batch-start-date" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface" type="datetime-local"/>
+</div>
+</div>
+<div>
+<label class="block text-[11px] font-medium text-secondary mb-1" data-i18n="nb_interval">Intervalo entre Pins</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">timer</span>
+<select id="batch-interval" class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface">
+<option value="none" data-i18n="nb_interval_none" selected>Sem agendamento (publicar imediatamente)</option>
+<option value="30m" data-i18n="nb_interval_30m">A cada 30 minutos</option>
+<option value="1h" data-i18n="nb_interval_1h">A cada 1 hora</option>
+<option value="2h" data-i18n="nb_interval_2h">A cada 2 horas</option>
+<option value="3h" data-i18n="nb_interval_3h">A cada 3 horas</option>
+<option value="6h" data-i18n="nb_interval_6h">A cada 6 horas</option>
+<option value="12h" data-i18n="nb_interval_12h">A cada 12 horas</option>
+<option value="24h" data-i18n="nb_interval_24h">A cada 24 horas (1 vez por dia)</option>
+</select>
+</div>
+</div>
+</div>
 </div>
 <div class="space-y-3 pt-6 border-t border-outline-variant/50">
 <button id="btn-clear-queue" class="w-full bg-surface-container-highest text-on-surface-variant py-4 rounded-xl font-headline-md flex items-center justify-center gap-2 active:scale-95 transition-transform hover:bg-error-container hover:text-on-error-container">
@@ -349,6 +385,9 @@
         const inputDestUrl = document.getElementById('batch-dest-url');
         const inputBoard = document.getElementById('batch-board');
         const inputBaseUrl = document.getElementById('batch-base-url');
+        const inputUtmTracking = document.getElementById('batch-utm-tracking');
+        const inputStartDate = document.getElementById('batch-start-date');
+        const inputInterval = document.getElementById('batch-interval');
 
         /* Modal fields */
         const editModal = document.getElementById('edit-modal');
@@ -372,6 +411,22 @@
             inputDestUrl.value = globalSettings.default_dest_url || '';
             inputBaseUrl.value = globalSettings.default_base_url || '';
             inputBoard.value = globalSettings.default_board_name || '';
+            
+            if (inputUtmTracking) {
+                inputUtmTracking.checked = globalSettings.default_utm_tracking !== false;
+            }
+            if (inputInterval) {
+                inputInterval.value = globalSettings.default_interval || 'none';
+            }
+            if (inputStartDate) {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                inputStartDate.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
             
             /* Set a default batch name */
             const today = new Date().toLocaleDateString();
@@ -1132,6 +1187,27 @@
                 ] /* Header */
             ];
 
+            const enableUtm = inputUtmTracking ? inputUtmTracking.checked : true;
+            const startDateVal = inputStartDate ? inputStartDate.value : '';
+            const intervalVal = inputInterval ? inputInterval.value : 'none';
+
+            let intervalMinutes = 0;
+            switch (intervalVal) {
+                case '30m': intervalMinutes = 30; break;
+                case '1h': intervalMinutes = 60; break;
+                case '2h': intervalMinutes = 120; break;
+                case '3h': intervalMinutes = 180; break;
+                case '6h': intervalMinutes = 360; break;
+                case '12h': intervalMinutes = 720; break;
+                case '24h': intervalMinutes = 1440; break;
+            }
+
+            // Save settings to localStorage as default
+            const settingsToSave = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
+            settingsToSave.default_utm_tracking = enableUtm;
+            settingsToSave.default_interval = intervalVal;
+            localStorage.setItem('pinautomate_settings', JSON.stringify(settingsToSave));
+
             const usedTitles = new Set();
 
             /* Process each canvas for CSV */
@@ -1149,6 +1225,35 @@
                 }
                 usedTitles.add(uniqueTitle.toLowerCase());
 
+                // Calculate dynamic tracking URL (to bypass Pinterest duplicate filter)
+                let pinDestUrl = destUrl;
+                if (enableUtm) {
+                    try {
+                        const urlObj = new URL(destUrl);
+                        urlObj.searchParams.set('utm_source', 'pinterest');
+                        urlObj.searchParams.set('utm_medium', 'social');
+                        urlObj.searchParams.set('utm_campaign', `pinflow_lote_${batchId}`);
+                        urlObj.searchParams.set('utm_content', `pin_${String(i + 1).padStart(2, '0')}`);
+                        pinDestUrl = urlObj.toString();
+                    } catch (e) {
+                        const separator = destUrl.includes('?') ? '&' : '?';
+                        pinDestUrl = `${destUrl}${separator}utm_source=pinterest&utm_medium=social&utm_campaign=pinflow_lote_${batchId}&utm_content=pin_${String(i + 1).padStart(2, '0')}`;
+                    }
+                }
+
+                // Calculate publish date
+                let publishDateStr = "";
+                if (startDateVal && intervalMinutes > 0) {
+                    const pinDate = new Date(new Date(startDateVal).getTime() + i * intervalMinutes * 60 * 1000);
+                    const year = pinDate.getFullYear();
+                    const month = String(pinDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(pinDate.getDate()).padStart(2, '0');
+                    const hours = String(pinDate.getHours()).padStart(2, '0');
+                    const minutes = String(pinDate.getMinutes()).padStart(2, '0');
+                    const seconds = String(pinDate.getSeconds()).padStart(2, '0');
+                    publishDateStr = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+                }
+
                 /* Add to CSV rows */
                 const mediaUrl = mediaBaseUrl + filename;
                 csvRows.push([
@@ -1157,8 +1262,8 @@
                     cleanCSVVal(board),
                     "", // Thumbnail
                     cleanCSVVal(pinObj.description),
-                    cleanCSVVal(destUrl),
-                    "", // Publish date
+                    cleanCSVVal(pinDestUrl),
+                    cleanCSVVal(publishDateStr), // Publish date
                     ""  // Keywords
                 ]);
             }
