@@ -1,5 +1,5 @@
 {
-  "version": "2.5.8",
-  "releaseDate": "2026-05-30",
-  "changelog": "Versão 2.5.8 - Implementação de parâmetros UTM dinâmicos no CSV para burlar a deduplicação de links do Pinterest e adição de agendamento escalonado."
+  "version": "2.6.0",
+  "releaseDate": "2026-05-31",
+  "changelog": "Versão 2.6.0 - Novo design de Pins premium (Full-Bleed, glassmorphism, botões arredondados, fonte do topo ampliada), customizador de aparência (temas de cores e marca d'água/logos customizáveis com persistência no navegador) e inversão inteligente do layout de textos (palavra-chave SEO no card e gatilho emocional no topo)."
 }

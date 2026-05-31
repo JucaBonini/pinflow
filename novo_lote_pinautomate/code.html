@@ -285,6 +285,66 @@
 <p class="mt-1 text-secondary font-body-sm text-[11px]" data-i18n="nb_utm_tracking_help">Adiciona parâmetros UTM para contornar a regra de link duplicado do Pinterest e permitir rastreio no Google Analytics.</p>
 </div>
 <div class="pt-2 border-t border-outline-variant/30 space-y-3">
+    <label class="block font-label-md text-on-surface mb-1">Aparência do Pin</label>
+    
+    <!-- Tema de Cores -->
+    <div>
+        <label class="block text-[11px] font-medium text-secondary mb-1">Paleta de Cores</label>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">palette</span>
+            <select id="batch-layout-theme" class="w-full pl-10 pr-4 py-2 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface">
+                <option value="default" selected>Pinterest Red (Padrão)</option>
+                <option value="warm">Warm Terracotta (Laranja Quente)</option>
+                <option value="dark">Dark Premium (Escuro Premium)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Identificação / Marca d'água -->
+    <div>
+        <label class="block text-[11px] font-medium text-secondary mb-1">Marca d'água / Logotipo</label>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">verified_user</span>
+            <select id="batch-logo-type" class="w-full pl-10 pr-4 py-2 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface">
+                <option value="none" selected>Nenhuma</option>
+                <option value="text">Texto (@perfil / site)</option>
+                <option value="image">Imagem Logotipo (PNG)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Campo de Texto da Marca d'água -->
+    <div id="wrapper-logo-text" class="hidden">
+        <label class="block text-[11px] font-medium text-secondary mb-1">Texto da Marca</label>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">edit</span>
+            <input id="batch-logo-text" class="w-full pl-10 pr-4 py-2 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface" type="text" placeholder="Ex: meusite.com"/>
+        </div>
+    </div>
+
+    <!-- Campo de Upload da Imagem da Logo -->
+    <div id="wrapper-logo-image" class="hidden">
+        <label class="block text-[11px] font-medium text-secondary mb-1">Upload da Logo (PNG)</label>
+        <div class="relative">
+            <input id="batch-logo-image" class="w-full py-1.5 px-3 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface text-xs" type="file" accept="image/png"/>
+        </div>
+    </div>
+
+    <!-- Posição da Marca -->
+    <div id="wrapper-logo-position" class="hidden">
+        <label class="block text-[11px] font-medium text-secondary mb-1">Posição no Layout</label>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">place</span>
+            <select id="batch-logo-position" class="w-full pl-10 pr-4 py-2 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface">
+                <option value="top">Topo do Pin</option>
+                <option value="card" selected>Rodapé do Card flutuante</option>
+                <option value="bottom">Rodapé do Pin (acima do botão)</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="pt-2 border-t border-outline-variant/30 space-y-3">
 <label class="block font-label-md text-on-surface" data-i18n="nb_scheduling_title">Agendamento de Postagem (Opcional)</label>
 <div>
 <label class="block text-[11px] font-medium text-secondary mb-1" data-i18n="nb_start_date">Data/Hora de Início</label>
@@ -389,6 +449,14 @@
         const inputStartDate = document.getElementById('batch-start-date');
         const inputInterval = document.getElementById('batch-interval');
 
+        /* Appearance customizer fields */
+        const selectLayoutTheme = document.getElementById('batch-layout-theme');
+        const selectLogoType = document.getElementById('batch-logo-type');
+        const inputLogoText = document.getElementById('batch-logo-text');
+        const fileLogoImage = document.getElementById('batch-logo-image');
+        const selectLogoPosition = document.getElementById('batch-logo-position');
+        let logoImgElement = null;
+
         /* Modal fields */
         const editModal = document.getElementById('edit-modal');
         const modalCanvas = document.getElementById('modal-canvas');
@@ -433,6 +501,90 @@
             const batchPrefix = t('nav_new_batch') || 'Lote';
             inputBatchName.value = `${batchPrefix} - ${today}`;
 
+            // Load custom appearance settings
+            if (selectLayoutTheme) {
+                selectLayoutTheme.value = globalSettings.default_layout_theme || 'default';
+            }
+            if (selectLogoType) {
+                selectLogoType.value = globalSettings.default_logo_type || 'none';
+            }
+            if (inputLogoText) {
+                inputLogoText.value = globalSettings.default_logo_text || '';
+            }
+            if (selectLogoPosition) {
+                selectLogoPosition.value = globalSettings.default_logo_position || 'card';
+            }
+            
+            // Check for saved logo image in localStorage
+            const savedLogoBase64 = localStorage.getItem('pinautomate_saved_logo');
+            if (savedLogoBase64) {
+                const img = new Image();
+                img.onload = () => {
+                    logoImgElement = img;
+                    triggerRedraw();
+                };
+                img.src = savedLogoBase64;
+            }
+            
+            // Set fields visibility
+            updateLogoFieldsVisibility();
+            
+            // Register visual customizer event listeners
+            if (selectLogoType) {
+                selectLogoType.addEventListener('change', () => {
+                    updateLogoFieldsVisibility();
+                    triggerRedraw();
+                    saveAppearanceSettings();
+                });
+            }
+            if (selectLayoutTheme) {
+                selectLayoutTheme.addEventListener('change', () => {
+                    triggerRedraw();
+                    saveAppearanceSettings();
+                });
+            }
+            if (inputLogoText) {
+                inputLogoText.addEventListener('input', () => {
+                    triggerRedraw();
+                    saveAppearanceSettings();
+                });
+            }
+            if (selectLogoPosition) {
+                selectLogoPosition.addEventListener('change', () => {
+                    triggerRedraw();
+                    saveAppearanceSettings();
+                });
+            }
+            if (fileLogoImage) {
+                fileLogoImage.addEventListener('change', () => {
+                    const file = fileLogoImage.files[0];
+                    if (file) {
+                        const url = URL.createObjectURL(file);
+                        const img = new Image();
+                        img.onload = () => {
+                            logoImgElement = img;
+                            triggerRedraw();
+                        };
+                        img.src = url;
+                        
+                        // Save base64 to localStorage
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                localStorage.setItem('pinautomate_saved_logo', e.target.result);
+                            } catch (err) {
+                                console.error('Failed to save logo to localStorage (quota limit):', err);
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        logoImgElement = null;
+                        localStorage.removeItem('pinautomate_saved_logo');
+                        triggerRedraw();
+                    }
+                });
+            }
+
             // Check for clone parameter
             const urlParams = new URLSearchParams(window.location.search);
             const cloneId = urlParams.get('clone');
@@ -440,6 +592,49 @@
                 loadCloneBatch(cloneId);
             }
         });
+
+        function updateLogoFieldsVisibility() {
+            if (!selectLogoType) return;
+            const type = selectLogoType.value;
+            const wrapperText = document.getElementById('wrapper-logo-text');
+            const wrapperImage = document.getElementById('wrapper-logo-image');
+            const wrapperPosition = document.getElementById('wrapper-logo-position');
+            
+            if (wrapperText && wrapperImage && wrapperPosition) {
+                if (type === 'none') {
+                    wrapperText.classList.add('hidden');
+                    wrapperImage.classList.add('hidden');
+                    wrapperPosition.classList.add('hidden');
+                } else if (type === 'text') {
+                    wrapperText.classList.remove('hidden');
+                    wrapperImage.classList.add('hidden');
+                    wrapperPosition.classList.remove('hidden');
+                } else if (type === 'image') {
+                    wrapperText.classList.add('hidden');
+                    wrapperImage.classList.remove('hidden');
+                    wrapperPosition.classList.remove('hidden');
+                }
+            }
+        }
+
+        function saveAppearanceSettings() {
+            if (!selectLayoutTheme || !selectLogoType || !inputLogoText || !selectLogoPosition) return;
+            const settings = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
+            settings.default_layout_theme = selectLayoutTheme.value;
+            settings.default_logo_type = selectLogoType.value;
+            settings.default_logo_text = inputLogoText.value;
+            settings.default_logo_position = selectLogoPosition.value;
+            localStorage.setItem('pinautomate_settings', JSON.stringify(settings));
+        }
+
+        function triggerRedraw() {
+            uploadedImages.forEach(pinObj => {
+                if (pinObj.imgElement) {
+                    drawPinCanvas(pinObj.imgElement, pinObj, pinObj.canvas);
+                }
+            });
+            renderQueue();
+        }
 
         const btnClearTemplates = document.getElementById('btn-clear-templates');
         if (btnClearTemplates) {
@@ -760,19 +955,22 @@
             const prompt = `Dada a palavra-chave "${keyword}", gere exatamente ${count} variações criativas de títulos e descrições otimizados para Pins de Pinterest (sendo que cada item deve ter textos ligeiramente diferentes para evitar repetições).
             IMPORTANTE: Todos os textos gerados (incluindo topLine1, topLine2, cardTitle, cardSubtitle, e description) DEVEM estar inteiramente no idioma ${targetLang}.
             
-            Regras de Copywriting para cliques (CTR alto):
-            - No "cardTitle": Crie um título curto de alta conversão usando gatilhos mentais como 'O Segredo', 'Sem Erro', 'Super Cremoso', 'Derrete na Boca', 'Sem Forno', 'Pronto em Minutos', etc. NUNCA repita a palavra-chave original aqui, pois ela já estará no topLine2. Seja criativo e persuasivo para atrair o clique! (máx 25 caracteres)
-            - Na "description": Escreva um texto otimizado para SEO do Pinterest contendo a palavra-chave naturalmente. O texto DEVE obrigatoriamente terminar com uma chamada para ação (CTA) natural como "Veja a receita completa no site!" ou "Clique aqui para ver a receita completa no site!". Nunca use termos artificiais ou traduções literais robóticas como "Confira leitor" ou "Acesse o post". (máx 350 caracteres)
+            Regras de Estruturação e Copywriting para cliques (CTR alto):
+            - No "topLine1": Use um selo/categoria curta em maiúsculo (ex: RECEITA, PASSO A PASSO, NOVIDADE, DICA, etc). (máx 15 caracteres)
+            - No "topLine2": Crie um gancho ou título curto de alta conversão e curiosidade em maiúsculo, sem citar a palavra-chave (ex: SEGREDO REVELADO, DERRETE NA BOCA, FÁCIL E RÁPIDO, PRONTO EM MINUTOS, FAÇA E VENDA). (máx 30 caracteres)
+            - No "cardTitle": Crie um título de alto impacto que integre a palavra-chave "${keyword}" de forma atraente para buscas do Pinterest (ex: "A Melhor Receita de Picolé Caseiro", "Picolé de Maracujá Cremoso", "O Segredo do Picolé de Leite Ninho"). Use capitalização normal de título. (máx 35 caracteres)
+            - No "cardSubtitle": Escreva um subtítulo de apoio que aumente o desejo de clicar (ex: "Super cremoso e muito fácil de fazer", "Pronto em poucos minutos e muito barato"). (máx 45 caracteres)
+            - Na "description": Escreva um texto otimizado para SEO do Pinterest contendo a palavra-chave naturalmente. O texto DEVE obrigatoriamente terminar com uma chamada para ação (CTA) natural como "Veja a receita completa no site!" ou "Clique aqui para ver a receita completa no site!". Nunca use termos artificiais ou traduções literais robóticas. (máx 350 caracteres)
             
             Retorne ESTRITAMENTE um JSON no seguinte formato (um objeto contendo uma chave "pins" que é uma matriz de objetos, sem formatação markdown adicional, sem blocos de código markdown, apenas o JSON bruto):
             {
               "pins": [
                 {
-                  "topLine1": "prefixo curto em maiúsculo no idioma correto (ex: LEGÍTIMO, NOVA RECEITA, PASSO A PASSO, GENUINE, NEW RECIPE, PASO A PASO, etc)",
-                  "topLine2": "título principal em maiúsculo baseado na palavra-chave (máx 30 caracteres)",
-                  "cardTitle": "título do card central focado em cliques (ex: O Segredo Revelado, Derrete na Boca, etc) (máx 25 caracteres)",
-                  "cardSubtitle": "subtítulo explicativo e cativante para o card central (máx 45 caracteres)",
-                  "description": "descrição otimizada que obrigatoriamente termina com a CTA direcionando para o site (máx 350 caracteres)"
+                  "topLine1": "Selo/categoria (ex: RECEITA)",
+                  "topLine2": "Gancho emocional (ex: SEGREDO REVELADO)",
+                  "cardTitle": "Título SEO com palavra-chave (ex: A Melhor Receita de Picolé Caseiro)",
+                  "cardSubtitle": "Subtítulo de apoio",
+                  "description": "Descrição SEO com CTA no final"
                 }
               ]
             }`;
@@ -811,20 +1009,58 @@
 
         /* Local template-based fallback generator */
         function generateFallbackData(keyword, index) {
-            const prefixes = t('fallback_prefixes');
+            const currentLang = localStorage.getItem('pinautomate_lang') || 'pt';
+            
+            let badges = ["RECEITA", "PASSO A PASSO", "DICA", "SEGREDO", "NOVIDADE"];
+            let hooks = ["SEGREDO REVELADO", "DERRETE NA BOCA", "FÁCIL E RÁPIDO", "O MELHOR DO MUNDO", "FAÇA E NÃO ERRE", "SUPER CREMOSO", "FAÇA E VENDA"];
+            let cardTitleTemplates = [
+                "A Melhor Receita de {keyword}",
+                "{keyword} Caseiro Perfeito",
+                "Como Fazer {keyword} Cremoso",
+                "{keyword} Super Fácil e Rápido",
+                "O Segredo do {keyword} Perfeito",
+                "{keyword} Profissional em Casa",
+                "Como Fazer {keyword} Sem Erro"
+            ];
+            
+            if (currentLang === 'en') {
+                badges = ["RECIPE", "STEP-BY-STEP", "TIP", "SECRET", "NEW"];
+                hooks = ["SECRET REVEALED", "MELTS IN MOUTH", "QUICK & EASY", "BEST EVER", "MAKE & SUCCEED", "SUPER CREAMY", "MAKE & SELL"];
+                cardTitleTemplates = [
+                    "Best Ever {keyword} Recipe",
+                    "Perfect Homemade {keyword}",
+                    "How to Make Creamy {keyword}",
+                    "Super Easy {keyword}",
+                    "The Secret to Perfect {keyword}",
+                    "Professional {keyword} at Home",
+                    "Easy {keyword} Step-by-Step"
+                ];
+            } else if (currentLang === 'es') {
+                badges = ["RECETA", "PASO A PASO", "CONSEJO", "SECRETO", "NOVEDAD"];
+                hooks = ["SECRETO REVELADO", "SE DESHACE EN BOCA", "RÁPIDO Y FÁCIL", "EL MEJOR DEL MUNDO", "HAZLO Y NO FALLES", "SÚPER CREMOSO", "HAZLO Y VENDE"];
+                cardTitleTemplates = [
+                    "La Mejor Receta de {keyword}",
+                    "{keyword} Casero Perfecto",
+                    "Cómo Hacer {keyword} Cremoso",
+                    "{keyword} Súper Fácil y Rápido",
+                    "El Secreto del {keyword} Perfecto",
+                    "{keyword} Profesional en Casa",
+                    "Cómo Hacer {keyword} Sin Errores"
+                ];
+            }
+
+            const prefix = badges[index % badges.length];
+            const topLine2 = hooks[index % hooks.length];
+            
+            const capitalizedKeyword = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+            const template = cardTitleTemplates[index % cardTitleTemplates.length];
+            const cardTitle = template.replace("{keyword}", capitalizedKeyword);
+            
             const cardSubtitles = t('fallback_subtitles');
             const descriptions = t('fallback_descriptions');
-            const cardTitles = t('fallback_card_titles');
-
-            const prefix = prefixes[index % prefixes.length];
+            
             const sub = cardSubtitles[index % cardSubtitles.length];
             const desc = descriptions[index % descriptions.length].replaceAll("{keyword}", keyword);
-            const cardTitle = cardTitles[index % cardTitles.length];
-            
-            let topLine2 = keyword.toUpperCase();
-            if (topLine2.length > 30) {
-                topLine2 = topLine2.substring(0, 27) + "...";
-            }
 
             return {
                 topLine1: prefix,
@@ -841,29 +1077,57 @@
             canvas.width = 1000;
             canvas.height = 1500;
 
-            /* 1. Draw top banner */
-            ctx.fillStyle = '#213145'; /* Dark slate */
-            ctx.fillRect(0, 0, 1000, 180);
+            /* Read active customization settings from DOM with defaults */
+            const theme = document.getElementById('batch-layout-theme') ? document.getElementById('batch-layout-theme').value : 'default';
+            const logoType = document.getElementById('batch-logo-type') ? document.getElementById('batch-logo-type').value : 'none';
+            const logoTextVal = document.getElementById('batch-logo-text') ? document.getElementById('batch-logo-text').value : '';
+            const logoPos = document.getElementById('batch-logo-position') ? document.getElementById('batch-logo-position').value : 'card';
 
-            /* Draw top line 1 */
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 36px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(pinObj.topLine1.toUpperCase(), 500, 55);
+            /* Define theme palettes */
+            let pillBadgeColor = '#b7001a';
+            let pillTextColor = '#ffffff';
+            let gradientStartColor = 'rgba(11, 22, 37, 0.85)';
+            let keywordColor = '#ffffff';
+            let cardBgColor = 'rgba(255, 255, 255, 0.95)';
+            let cardBorderColor = 'rgba(15, 23, 42, 0.08)';
+            let cardTitleColor = '#0b1c30';
+            let cardSubtitleColor = '#475569';
+            let btnBgColor = '#b7001a';
+            let btnTextColor = '#ffffff';
+            let btnShadowColor = 'rgba(183, 0, 26, 0.25)';
 
-            /* Draw top line 2 */
-            ctx.fillStyle = '#e8bcb8'; /* Outline gold accent */
-            ctx.font = '900 48px Inter, sans-serif';
-            ctx.fillText(pinObj.topLine2.toUpperCase(), 500, 120);
+            if (theme === 'warm') {
+                pillBadgeColor = '#c2410c'; /* Orange-700 / Terracota */
+                pillTextColor = '#ffffff';
+                gradientStartColor = 'rgba(43, 27, 23, 0.85)'; /* Dark warm brown */
+                keywordColor = '#ffffff';
+                cardBgColor = 'rgba(255, 253, 246, 0.96)'; /* Warm beige */
+                cardBorderColor = 'rgba(194, 65, 12, 0.12)';
+                cardTitleColor = '#431407'; /* Deep warm brown */
+                cardSubtitleColor = '#7c2d12'; /* Warm terracotta */
+                btnBgColor = '#c2410c';
+                btnTextColor = '#ffffff';
+                btnShadowColor = 'rgba(194, 65, 12, 0.25)';
+            } else if (theme === 'dark') {
+                pillBadgeColor = '#0f172a'; /* Deep slate */
+                pillTextColor = '#ffffff';
+                gradientStartColor = 'rgba(2, 6, 17, 0.9)'; /* Pitch black */
+                keywordColor = '#e2e8f0';
+                cardBgColor = 'rgba(15, 23, 42, 0.93)'; /* Dark Slate Glass */
+                cardBorderColor = 'rgba(255, 255, 255, 0.08)';
+                cardTitleColor = '#ffffff';
+                cardSubtitleColor = '#94a3b8'; /* Slate grey */
+                btnBgColor = '#b7001a'; /* Pinterest Red */
+                btnTextColor = '#ffffff';
+                btnShadowColor = 'rgba(183, 0, 26, 0.3)';
+            }
 
-            /* 2. Draw photo in the center */
+            /* 1. Draw photo in Full-Bleed (complete background 1000x1500 px) */
             const imgWidth = img.naturalWidth || img.width;
             const imgHeight = img.naturalHeight || img.height;
             
-            const targetY = 180;
-            const targetHeight = 1070; /* 1250 - 180 */
             const targetWidth = 1000;
+            const targetHeight = 1500;
             
             const imgRatio = imgWidth / imgHeight;
             const targetRatio = targetWidth / targetHeight;
@@ -881,70 +1145,222 @@
                 sourceY = (imgHeight - sourceHeight) / 2;
             }
             
-            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, targetY, targetWidth, targetHeight);
+            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
 
-            /* 3. Draw footer background */
-            ctx.fillStyle = '#eff4ff'; /* Light cream/blue container low */
-            ctx.fillRect(0, 1250, 1000, 250);
+            /* 2. Top gradient mask for readability */
+            const topGrad = ctx.createLinearGradient(0, 0, 0, 320);
+            topGrad.addColorStop(0, gradientStartColor);
+            topGrad.addColorStop(0.7, gradientStartColor.replace('0.85', '0.5').replace('0.9', '0.5'));
+            topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = topGrad;
+            ctx.fillRect(0, 0, 1000, 320);
 
-            /* 4. Draw red CTA button in the footer */
-            const btnWidth = 640;
-            const btnHeight = 70;
-            const btnX = (1000 - btnWidth) / 2;
-            const btnY = 1370;
-            const btnRadius = 12;
+            /* 3. Bottom gradient mask for readability */
+            const bottomGrad = ctx.createLinearGradient(0, 1500, 0, 1100);
+            bottomGrad.addColorStop(0, 'rgba(11, 22, 37, 0.7)');
+            bottomGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = bottomGrad;
+            ctx.fillRect(0, 1100, 1000, 400);
+
+            /* 4. Draw pill badge for topLine1 */
+            ctx.font = 'bold 24px Inter, sans-serif';
+            const badgeText = pinObj.topLine1.toUpperCase();
+            const textWidth = ctx.measureText(badgeText).width;
             
-            ctx.fillStyle = '#b7001a'; /* Pinterest Red primary */
+            const badgeWidth = textWidth + 40; /* padding left/right */
+            const badgeHeight = 48;
+            const badgeX = (1000 - badgeWidth) / 2;
+            const badgeY = 40;
+            const badgeRadius = 24;
+            
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 8;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 4;
+            
+            ctx.fillStyle = pillBadgeColor;
             ctx.beginPath();
-            ctx.roundRect(btnX, btnY, btnWidth, btnHeight, btnRadius);
+            ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, badgeRadius);
             ctx.fill();
             
-            /* Draw button text */
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 28px Inter, sans-serif';
-            ctx.fillText(t('canvas_cta'), 500, btnY + btnHeight/2 + 2);
-
-            /* 5. Draw white overlay card in the lower middle */
-            const cardWidth = 800;
-            const cardHeight = 330;
-            const cardX = (1000 - cardWidth) / 2;
-            const cardY = 930;
-            const cardRadius = 16;
+            /* Reset shadow for text */
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
             
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = pillTextColor;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(badgeText, 500, badgeY + badgeHeight / 2 + 1);
+
+            /* 5. Draw bold title for topLine2 (the main keyword) */
+            ctx.fillStyle = keywordColor;
+            ctx.font = '900 64px Inter, sans-serif';
+            
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
+            
+            ctx.fillText(pinObj.topLine2.toUpperCase(), 500, 125);
+            
+            /* Reset shadow */
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            /* 6. Draw floating premium card in the lower middle */
+            const cardWidth = 840;
+            const cardHeight = 280;
+            const cardX = (1000 - cardWidth) / 2;
+            const cardY = 960;
+            const cardRadius = 24;
+            
+            ctx.shadowColor = 'rgba(15, 23, 42, 0.12)';
+            ctx.shadowBlur = 24;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 10;
+            
+            ctx.fillStyle = cardBgColor;
             ctx.beginPath();
             ctx.roundRect(cardX, cardY, cardWidth, cardHeight, cardRadius);
             ctx.fill();
             
-            /* Gold/beige border */
-            ctx.strokeStyle = '#e8bcb8';
-            ctx.lineWidth = 3;
+            /* Soft elegant border */
+            ctx.strokeStyle = cardBorderColor;
+            ctx.lineWidth = 2;
             ctx.stroke();
+            
+            /* Reset shadow */
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
 
-            /* Draw text inside white card */
-            /* Title */
-            ctx.fillStyle = '#b7001a';
-            ctx.font = 'bold 54px Georgia, serif';
+            /* 7. Draw card text with modern hierarchy */
+            /* Title (cardTitle) */
+            ctx.fillStyle = cardTitleColor;
+            ctx.font = 'bold 46px Inter, sans-serif';
             ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             
-            const titleLines = wrapText(ctx, pinObj.cardTitle, 720);
-            let currentY = cardY + 100;
+            const titleLines = wrapText(ctx, pinObj.cardTitle, 760);
+            let titleY = cardY + 75;
+            if (titleLines.length > 1) {
+                titleY = cardY + 60;
+            }
             
-            titleLines.forEach(line => {
-                ctx.fillText(line, 500, currentY);
-                currentY += 65;
+            titleLines.forEach((line, idx) => {
+                ctx.fillText(line, 500, titleY + (idx * 55));
             });
 
-            /* Subtitle */
-            ctx.fillStyle = '#0b1c30';
-            ctx.font = '600 32px Inter, sans-serif';
+            /* Subtitle (cardSubtitle) */
+            ctx.fillStyle = cardSubtitleColor;
+            ctx.font = '500 28px Inter, sans-serif';
             
-            const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 720);
-            currentY += 10;
-            subtitleLines.forEach(line => {
-                ctx.fillText(line, 500, currentY);
-                currentY += 45;
+            const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 760);
+            let subY = titleY + (titleLines.length * 55) + 15;
+            if (titleLines.length > 1) {
+                subY = titleY + (titleLines.length * 52) + 10;
+            }
+            
+            subtitleLines.forEach((line, idx) => {
+                ctx.fillText(line, 500, subY + (idx * 38));
             });
+
+            /* 8. Draw floating pill-shaped button in the footer */
+            const btnWidth = 700;
+            const btnHeight = 76;
+            const btnX = (1000 - btnWidth) / 2;
+            const btnY = 1340;
+            const btnRadius = 38;
+            
+            ctx.shadowColor = btnShadowColor;
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 8;
+            
+            ctx.fillStyle = btnBgColor;
+            ctx.beginPath();
+            ctx.roundRect(btnX, btnY, btnWidth, btnHeight, btnRadius);
+            ctx.fill();
+            
+            /* Reset shadow for button text */
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            ctx.fillStyle = btnTextColor;
+            ctx.font = 'bold 28px Inter, sans-serif';
+            ctx.fillText(t('canvas_cta'), 500, btnY + btnHeight / 2 + 2);
+
+            /* 9. Draw Custom Watermark / Logo if enabled */
+            if (logoType !== 'none') {
+                ctx.save();
+                
+                // Determine Coordinates for Logo/Watermark
+                let logoCenterX = 500;
+                let logoCenterY = 0;
+                
+                if (logoPos === 'top') {
+                    // Position at top center, above badge (y = 22)
+                    logoCenterY = 22;
+                } else if (logoPos === 'card') {
+                    // Positioned at the bottom center inside the floating card
+                    logoCenterY = cardY + cardHeight - 32;
+                } else if (logoPos === 'bottom') {
+                    // Positioned above the CTA button
+                    logoCenterY = btnY - 35;
+                }
+                
+                if (logoType === 'text' && logoTextVal) {
+                    // Render text watermark
+                    let textColor = '#ffffff';
+                    let textOpacity = 0.65;
+                    let textFont = 'bold 20px Inter, sans-serif';
+                    
+                    if (logoPos === 'card') {
+                        textColor = cardSubtitleColor;
+                        textOpacity = 0.8;
+                        textFont = 'bold 18px Inter, sans-serif';
+                    }
+                    
+                    ctx.globalAlpha = textOpacity;
+                    ctx.fillStyle = textColor;
+                    ctx.font = textFont;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(logoTextVal, logoCenterX, logoCenterY);
+                } else if (logoType === 'image' && logoImgElement) {
+                    // Render image logo
+                    // Max constraints for logo scaling
+                    const maxW = 180;
+                    const maxH = 50;
+                    
+                    const w = logoImgElement.naturalWidth || logoImgElement.width;
+                    const h = logoImgElement.naturalHeight || logoImgElement.height;
+                    const ratio = w / h;
+                    
+                    let targetW = maxW;
+                    let targetH = maxW / ratio;
+                    
+                    if (targetH > maxH) {
+                        targetH = maxH;
+                        targetW = maxH * ratio;
+                    }
+                    
+                    const x = logoCenterX - targetW / 2;
+                    const y = logoCenterY - targetH / 2;
+                    
+                    ctx.globalAlpha = logoPos === 'card' ? 0.95 : 0.8;
+                    ctx.drawImage(logoImgElement, x, y, targetW, targetH);
+                }
+                
+                ctx.restore();
+            }
         }
 
         function wrapText(ctx, text, maxWidth) {
