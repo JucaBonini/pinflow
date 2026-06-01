@@ -47,17 +47,32 @@ try {
          status VARCHAR(50) DEFAULT 'Completed'
      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-     $pdo->exec("CREATE TABLE IF NOT EXISTS pins (
-         id VARCHAR(50) PRIMARY KEY,
-         batch_id VARCHAR(50) NOT NULL,
-         top_line_1 VARCHAR(100),
-         top_line_2 VARCHAR(100),
-         card_title VARCHAR(100),
-         card_subtitle VARCHAR(100),
-         description TEXT,
-         image_path VARCHAR(500),
-         FOREIGN KEY (batch_id) REFERENCES batches(id) ON DELETE CASCADE
-     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+      $pdo->exec("CREATE TABLE IF NOT EXISTS pins (
+          id VARCHAR(50) PRIMARY KEY,
+          batch_id VARCHAR(50) NOT NULL,
+          top_line_1 VARCHAR(100),
+          top_line_2 VARCHAR(100),
+          card_title VARCHAR(100),
+          card_subtitle VARCHAR(100),
+          description TEXT,
+          image_path VARCHAR(500),
+          dest_url VARCHAR(500) DEFAULT NULL,
+          board VARCHAR(255) DEFAULT NULL,
+          FOREIGN KEY (batch_id) REFERENCES batches(id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+      // Alter pins table to add dest_url and board if not exists
+      try {
+          $pdo->exec("ALTER TABLE pins ADD COLUMN dest_url VARCHAR(500) DEFAULT NULL");
+      } catch (\Exception $e) {
+          // Column already exists, ignore
+      }
+      try {
+          $pdo->exec("ALTER TABLE pins ADD COLUMN board VARCHAR(255) DEFAULT NULL");
+      } catch (\Exception $e) {
+          // Column already exists, ignore
+      }
+
 
      // Create plans table
      $pdo->exec("CREATE TABLE IF NOT EXISTS plans (

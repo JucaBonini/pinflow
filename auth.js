@@ -9,6 +9,10 @@
         prefix = '../';
     }
 
+    // Initialize theme very early to prevent color flashing
+    const savedTheme = localStorage.getItem('pinautomate_theme') || 'light';
+    document.documentElement.className = savedTheme;
+
     // Prevent layout flashing while checking authentication
     const style = document.createElement('style');
     style.id = 'auth-gate-style';
@@ -107,9 +111,47 @@
                     }
                 }
 
-                // Inject Logout Button in the Header Top Bar (TopRight)
+                // Inject Theme Toggle Button in the Header Top Bar (TopRight)
                 const headerRight = document.querySelector('header .flex.items-center.gap-4');
-                if (headerRight && !document.getElementById('header-logout-btn')) {
+                if (headerRight && !document.getElementById('header-theme-toggle')) {
+                    const themeToggleBtn = document.createElement('button');
+                    themeToggleBtn.id = 'header-theme-toggle';
+                    themeToggleBtn.className = 'p-2 rounded-full text-secondary hover:bg-surface-container-highest/50 active:scale-95 transition-all flex items-center justify-center shrink-0 cursor-pointer';
+                    themeToggleBtn.title = 'Alternar Tema (Claro/Escuro)';
+                    
+                    const currentTheme = localStorage.getItem('pinautomate_theme') || 'light';
+                    themeToggleBtn.innerHTML = `<span class="material-symbols-outlined text-xl">${currentTheme === 'dark' ? 'light_mode' : 'dark_mode'}</span>`;
+                    
+                    themeToggleBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const activeTheme = document.documentElement.className;
+                        const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+                        document.documentElement.className = newTheme;
+                        localStorage.setItem('pinautomate_theme', newTheme);
+                        
+                        // Update icon
+                        const iconSpan = themeToggleBtn.querySelector('span');
+                        if (iconSpan) {
+                            iconSpan.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
+                        }
+                    });
+
+                    const profileImg = headerRight.querySelector('img, div.rounded-full');
+                    if (profileImg) {
+                        headerRight.insertBefore(themeToggleBtn, profileImg);
+                        // Add separator line
+                        const sep = document.createElement('div');
+                        sep.id = 'header-theme-sep';
+                        sep.className = 'h-8 w-px bg-outline-variant/30 mx-1';
+                        headerRight.insertBefore(sep, profileImg);
+                    } else {
+                        headerRight.appendChild(themeToggleBtn);
+                    }
+                }
+
+                // Inject Logout Button in the Header Top Bar (TopRight)
+                const headerRightBtn = document.querySelector('header .flex.items-center.gap-4');
+                if (headerRightBtn && !document.getElementById('header-logout-btn')) {
                     const logoutBtn = document.createElement('a');
                     logoutBtn.id = 'header-logout-btn';
                     logoutBtn.href = prefix + 'logout.php';
@@ -117,16 +159,16 @@
                     logoutBtn.title = 'Sair / Logout';
                     logoutBtn.innerHTML = '<span class="material-symbols-outlined text-xl">logout</span>';
                     
-                    const profileImg = headerRight.querySelector('img, div.rounded-full');
+                    const profileImg = headerRightBtn.querySelector('img, div.rounded-full');
                     if (profileImg) {
-                        headerRight.insertBefore(logoutBtn, profileImg);
+                        headerRightBtn.insertBefore(logoutBtn, profileImg);
                         // Add separator line
                         const sep = document.createElement('div');
                         sep.id = 'header-logout-sep';
                         sep.className = 'h-8 w-px bg-outline-variant/30 mx-1';
-                        headerRight.insertBefore(sep, profileImg);
+                        headerRightBtn.insertBefore(sep, profileImg);
                     } else {
-                        headerRight.appendChild(logoutBtn);
+                        headerRightBtn.appendChild(logoutBtn);
                     }
                 }
 

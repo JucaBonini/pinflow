@@ -273,7 +273,6 @@
     <!-- list items will be injected here via javascript -->
 </div>
 </div>
-</div>
 <div class="pt-2 border-t border-outline-variant/30">
 <div class="flex items-center justify-between">
 <label class="font-label-md text-on-surface" data-i18n="nb_utm_tracking">Rastreamento UTM Automático</label>
@@ -284,8 +283,52 @@
 </div>
 <p class="mt-1 text-secondary font-body-sm text-[11px]" data-i18n="nb_utm_tracking_help">Adiciona parâmetros UTM para contornar a regra de link duplicado do Pinterest e permitir rastreio no Google Analytics.</p>
 </div>
+
+<!-- Configurações Multi-Nicho -->
+<div class="pt-2 border-t border-outline-variant/30 space-y-3">
+    <div class="flex items-center justify-between">
+        <label class="font-label-md text-on-surface">Modo Multi-Nicho</label>
+        <label class="relative inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" id="batch-multi-niche" class="sr-only peer">
+            <div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-secondary after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary peer-checked:after:bg-on-primary"></div>
+        </label>
+    </div>
+    <p class="text-secondary font-body-sm text-[11px]">Permite separar as imagens por diferentes nichos, com suas próprias palavras-chave, URLs e Pastas no mesmo lote.</p>
+    
+    <!-- Multi-Niche Container -->
+    <div id="multi-niche-container" class="hidden space-y-4 pt-2 border-t border-outline-variant/10">
+        <!-- List of Niches -->
+        <div>
+            <label class="block text-[11px] font-medium text-secondary mb-1.5">Categorias / Nichos no Lote</label>
+            <div id="niches-list" class="space-y-2 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+        
+        <!-- Add Niche Button -->
+        <button id="btn-add-niche" type="button" class="w-full py-2.5 border border-dashed border-primary/40 text-primary rounded-xl font-label-md text-xs hover:bg-primary/5 active:scale-95 transition-all flex items-center justify-center gap-1">
+            <span class="material-symbols-outlined text-sm">add</span>
+            <span>Adicionar Novo Nicho</span>
+        </button>
+    </div>
+</div>
+
 <div class="pt-2 border-t border-outline-variant/30 space-y-3">
     <label class="block font-label-md text-on-surface mb-1">Aparência do Pin</label>
+    
+    <!-- Modelo de Layout -->
+    <div>
+        <label class="block text-[11px] font-medium text-secondary mb-1">Modelo de Layout</label>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">layers</span>
+            <select id="batch-layout-preset" class="w-full pl-10 pr-4 py-2 rounded-xl border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-sm bg-surface-container-lowest text-on-surface">
+                <option value="floating_card" selected>Floating Card (Padrão)</option>
+                <option value="split_banner">Split Editorial (Rodapé)</option>
+                <option value="minimal_clean">Minimal Clean (Sobreposto)</option>
+                <option value="bold_top">Bold Top (Banner Superior)</option>
+            </select>
+        </div>
+    </div>
     
     <!-- Tema de Cores -->
     <div>
@@ -399,6 +442,12 @@
             <div>
                 <h3 class="font-headline-md text-on-surface mb-4" data-i18n="modal_title">Editar Detalhes do Pin</h3>
                 <div class="space-y-4">
+                    <div id="wrapper-edit-niche" class="hidden">
+                        <label class="block font-label-md text-on-surface mb-1">Nicho / Categoria</label>
+                        <select id="edit-niche" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary text-on-surface bg-white">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
                     <div>
                         <label class="block font-label-md text-on-surface mb-1" data-i18n="modal_top1">Texto Topo Linha 1</label>
                         <input id="edit-top-1" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary" type="text" maxlength="20"/>
@@ -429,6 +478,40 @@
     </div>
 </div>
 
+<!-- Niche Modal -->
+<div id="niche-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-on-surface/50 backdrop-blur-sm p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-outline-variant/30">
+        <div class="p-6 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-low">
+            <h3 id="niche-modal-title" class="font-headline-md text-on-surface">Adicionar Novo Nicho</h3>
+            <button id="niche-modal-close-x" class="p-1 rounded-lg text-secondary hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="niche-modal-id">
+            <div>
+                <label class="block font-label-md text-on-surface mb-1">Identificador / Nome do Nicho</label>
+                <input id="niche-modal-name" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary text-on-surface bg-white" type="text" placeholder="Ex: Bolo de Cenoura"/>
+            </div>
+            <div>
+                <label class="block font-label-md text-on-surface mb-1">Palavra-Chave (IA)</label>
+                <input id="niche-modal-keyword" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary text-on-surface bg-white" type="text" placeholder="Ex: bolo de cenoura caseiro"/>
+            </div>
+            <div>
+                <label class="block font-label-md text-on-surface mb-1">Link de Destino</label>
+                <input id="niche-modal-dest-url" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary text-on-surface bg-white" type="url" placeholder="https://site.com/bolo-de-cenoura"/>
+            </div>
+            <div>
+                <label class="block font-label-md text-on-surface mb-1">Pasta do Pinterest (Board)</label>
+                <input id="niche-modal-board" class="w-full rounded-lg border border-outline-variant py-2 px-3 font-body-sm focus:border-primary text-on-surface bg-white" type="text" placeholder="Ex: Bolos Deliciosos"/>
+            </div>
+        </div>
+        <div class="p-4 border-t border-outline-variant/20 flex justify-end gap-3 bg-surface-container-low">
+            <button id="niche-modal-close" class="px-4 py-2 border border-outline-variant text-secondary rounded-lg font-label-md hover:bg-surface-container transition-all">Cancelar</button>
+            <button id="niche-modal-save" class="px-6 py-2 bg-primary text-white rounded-lg font-label-md hover:brightness-110 transition-all">Salvar</button>
+        </div>
+</div>
+
 <script>
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('file-input');
@@ -451,6 +534,7 @@
 
         /* Appearance customizer fields */
         const selectLayoutTheme = document.getElementById('batch-layout-theme');
+        const selectLayoutPreset = document.getElementById('batch-layout-preset');
         const selectLogoType = document.getElementById('batch-logo-type');
         const inputLogoText = document.getElementById('batch-logo-text');
         const fileLogoImage = document.getElementById('batch-logo-image');
@@ -467,11 +551,33 @@
         const editDesc = document.getElementById('edit-desc');
         const btnModalClose = document.getElementById('modal-close');
         const btnModalSave = document.getElementById('modal-save');
+        const editNiche = document.getElementById('edit-niche');
+        const wrapperEditNiche = document.getElementById('wrapper-edit-niche');
+
+        /* Multi-Niche fields */
+        const inputMultiNiche = document.getElementById('batch-multi-niche');
+        const multiNicheContainer = document.getElementById('multi-niche-container');
+        const nichesList = document.getElementById('niches-list');
+        const btnAddNiche = document.getElementById('btn-add-niche');
+
+        /* Niche Modal fields */
+        const nicheModal = document.getElementById('niche-modal');
+        const inputNicheModalId = document.getElementById('niche-modal-id');
+        const inputNicheModalName = document.getElementById('niche-modal-name');
+        const inputNicheModalKeyword = document.getElementById('niche-modal-keyword');
+        const inputNicheModalDestUrl = document.getElementById('niche-modal-dest-url');
+        const inputNicheModalBoard = document.getElementById('niche-modal-board');
+        const btnNicheModalCloseX = document.getElementById('niche-modal-close-x');
+        const btnNicheModalClose = document.getElementById('niche-modal-close');
+        const btnNicheModalSave = document.getElementById('niche-modal-save');
 
         let uploadedImages = []; /* List of Pin objects */
         let activeEditId = null;
         let globalSettings = {};
         let clonedPinTemplates = [];
+        let customNiches = []; /* List of custom niche objects: { id, name, keyword, destUrl, board } */
+        let activeUploadNicheId = 'default_niche'; /* Currently active niche for uploads */
+
 
         /* Load settings from localStorage */
         document.addEventListener('DOMContentLoaded', () => {
@@ -501,9 +607,16 @@
             const batchPrefix = t('nav_new_batch') || 'Lote';
             inputBatchName.value = `${batchPrefix} - ${today}`;
 
+            // Sincronizar campos padrão com a lista de nichos em tempo real
+            if (inputKeyword) inputKeyword.addEventListener('input', () => renderNiches());
+            if (inputBoard) inputBoard.addEventListener('input', () => renderNiches());
+
             // Load custom appearance settings
             if (selectLayoutTheme) {
                 selectLayoutTheme.value = globalSettings.default_layout_theme || 'default';
+            }
+            if (selectLayoutPreset) {
+                selectLayoutPreset.value = globalSettings.default_layout_preset || 'floating_card';
             }
             if (selectLogoType) {
                 selectLogoType.value = globalSettings.default_logo_type || 'none';
@@ -539,6 +652,12 @@
             }
             if (selectLayoutTheme) {
                 selectLayoutTheme.addEventListener('change', () => {
+                    triggerRedraw();
+                    saveAppearanceSettings();
+                });
+            }
+            if (selectLayoutPreset) {
+                selectLayoutPreset.addEventListener('change', () => {
                     triggerRedraw();
                     saveAppearanceSettings();
                 });
@@ -585,6 +704,31 @@
                 });
             }
 
+            // Register Multi-Niche toggler
+            if (inputMultiNiche) {
+                inputMultiNiche.checked = false;
+                inputMultiNiche.addEventListener('change', () => {
+                    if (inputMultiNiche.checked) {
+                        multiNicheContainer.classList.remove('hidden');
+                        wrapperEditNiche.classList.remove('hidden');
+                    } else {
+                        multiNicheContainer.classList.add('hidden');
+                        wrapperEditNiche.classList.add('hidden');
+                    }
+                    renderNiches();
+                    renderQueue();
+                });
+            }
+
+            // Niche modal events
+            if (btnAddNiche) btnAddNiche.addEventListener('click', () => openNicheModal());
+            if (btnNicheModalCloseX) btnNicheModalCloseX.addEventListener('click', closeNicheModal);
+            if (btnNicheModalClose) btnNicheModalClose.addEventListener('click', closeNicheModal);
+            if (btnNicheModalSave) btnNicheModalSave.addEventListener('click', saveNiche);
+
+            // Initialize niches list
+            renderNiches();
+
             // Check for clone parameter
             const urlParams = new URLSearchParams(window.location.search);
             const cloneId = urlParams.get('clone');
@@ -621,11 +765,177 @@
             if (!selectLayoutTheme || !selectLogoType || !inputLogoText || !selectLogoPosition) return;
             const settings = JSON.parse(localStorage.getItem('pinautomate_settings')) || {};
             settings.default_layout_theme = selectLayoutTheme.value;
+            settings.default_layout_preset = selectLayoutPreset ? selectLayoutPreset.value : 'floating_card';
             settings.default_logo_type = selectLogoType.value;
             settings.default_logo_text = inputLogoText.value;
             settings.default_logo_position = selectLogoPosition.value;
             localStorage.setItem('pinautomate_settings', JSON.stringify(settings));
         }
+
+        function renderNiches() {
+            if (!nichesList) return;
+            nichesList.innerHTML = '';
+
+            // 1. General Niche (Default)
+            const defaultNicheKeyword = inputKeyword.value.trim() || '(Padrão)';
+            const defaultNicheBoard = inputBoard.value.trim() || '(Padrão)';
+            
+            const defaultDiv = document.createElement('div');
+            const isDefaultActive = activeUploadNicheId === 'default_niche';
+            defaultDiv.className = `p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 text-xs ${
+                isDefaultActive 
+                ? 'bg-primary/5 border-primary/50 text-primary font-bold' 
+                : 'bg-surface-container border-outline-variant/30 text-on-surface'
+            }`;
+            defaultDiv.innerHTML = `
+                <div class="flex-1 min-w-0 flex items-center gap-2" onclick="selectUploadNiche('default_niche')">
+                    <span class="material-symbols-outlined text-[16px]">${isDefaultActive ? 'radio_button_checked' : 'radio_button_unchecked'}</span>
+                    <div class="truncate">
+                        <p class="truncate font-semibold">Geral (Padrão)</p>
+                        <p class="text-[10px] text-secondary truncate font-normal">Palavra: ${defaultNicheKeyword} • Pasta: ${defaultNicheBoard}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                </div>
+            `;
+            nichesList.appendChild(defaultDiv);
+
+            // 2. Custom Niches
+            customNiches.forEach((n, idx) => {
+                const isNicheActive = activeUploadNicheId === n.id;
+                const div = document.createElement('div');
+                div.className = `p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 text-xs ${
+                    isNicheActive 
+                    ? 'bg-primary/5 border-primary/50 text-primary font-bold' 
+                    : 'bg-surface-container border-outline-variant/30 text-on-surface'
+                }`;
+                div.innerHTML = `
+                    <div class="flex-1 min-w-0 flex items-center gap-2" onclick="selectUploadNiche('${n.id}')">
+                        <span class="material-symbols-outlined text-[16px]">${isNicheActive ? 'radio_button_checked' : 'radio_button_unchecked'}</span>
+                        <div class="truncate">
+                            <p class="truncate font-semibold">${n.name}</p>
+                            <p class="text-[10px] text-secondary truncate font-normal">Palavra: ${n.keyword} • Pasta: ${n.board}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0" onclick="event.stopPropagation();">
+                        <button type="button" class="p-1 hover:bg-surface-container-high rounded text-secondary hover:text-primary transition-colors" onclick="openNicheModal('${n.id}')">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </button>
+                        <button type="button" class="p-1 hover:bg-error-container/20 rounded text-secondary hover:text-error transition-colors" onclick="deleteNiche('${n.id}')">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </div>
+                `;
+                nichesList.appendChild(div);
+            });
+
+            // Update Niche select dropdown in Edit Pin Modal
+            if (editNiche) {
+                editNiche.innerHTML = '<option value="default_niche">Geral (Padrão)</option>';
+                customNiches.forEach(n => {
+                    const opt = document.createElement('option');
+                    opt.value = n.id;
+                    opt.textContent = n.name;
+                    editNiche.appendChild(opt);
+                });
+            }
+        }
+
+        window.selectUploadNiche = function(nicheId) {
+            activeUploadNicheId = nicheId;
+            renderNiches();
+        };
+
+        window.openNicheModal = function(nicheId = null) {
+            if (!nicheModal) return;
+            if (nicheId) {
+                const niche = customNiches.find(n => n.id === nicheId);
+                if (niche) {
+                    document.getElementById('niche-modal-title').textContent = 'Editar Nicho / Categoria';
+                    inputNicheModalId.value = niche.id;
+                    inputNicheModalName.value = niche.name;
+                    inputNicheModalKeyword.value = niche.keyword;
+                    inputNicheModalDestUrl.value = niche.destUrl;
+                    inputNicheModalBoard.value = niche.board;
+                }
+            } else {
+                document.getElementById('niche-modal-title').textContent = 'Adicionar Novo Nicho';
+                inputNicheModalId.value = '';
+                inputNicheModalName.value = '';
+                inputNicheModalKeyword.value = '';
+                inputNicheModalDestUrl.value = '';
+                inputNicheModalBoard.value = '';
+            }
+            nicheModal.classList.remove('hidden');
+        };
+
+        window.closeNicheModal = function() {
+            if (nicheModal) {
+                nicheModal.classList.add('hidden');
+            }
+        };
+
+        window.saveNiche = function() {
+            const name = inputNicheModalName.value.trim();
+            const keyword = inputNicheModalKeyword.value.trim();
+            const destUrl = inputNicheModalDestUrl.value.trim();
+            const board = inputNicheModalBoard.value.trim();
+
+            if (!name || !keyword || !destUrl) {
+                alert('Nome, Palavra-Chave e Link de Destino são obrigatórios.');
+                return;
+            }
+
+            const id = inputNicheModalId.value;
+            if (id) {
+                // Edit existing
+                const niche = customNiches.find(n => n.id === id);
+                if (niche) {
+                    niche.name = name;
+                    niche.keyword = keyword;
+                    niche.destUrl = destUrl;
+                    niche.board = board;
+                }
+            } else {
+                // Add new
+                const newId = 'niche_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                customNiches.push({
+                    id: newId,
+                    name,
+                    keyword,
+                    destUrl,
+                    board
+                });
+                
+                // Set as active upload niche automatically
+                activeUploadNicheId = newId;
+            }
+
+            closeNicheModal();
+            renderNiches();
+            triggerRedraw();
+        };
+
+        window.deleteNiche = function(nicheId) {
+            if (confirm('Tem certeza que deseja excluir esta categoria? Os pins associados a ela voltarão para a categoria Geral.')) {
+                customNiches = customNiches.filter(n => n.id !== nicheId);
+                
+                // Reassign pins to default
+                uploadedImages.forEach(pin => {
+                    if (pin.nicheId === nicheId) {
+                        pin.nicheId = 'default_niche';
+                    }
+                });
+
+                if (activeUploadNicheId === nicheId) {
+                    activeUploadNicheId = 'default_niche';
+                }
+
+                renderNiches();
+                triggerRedraw();
+            }
+        };
+
 
         function triggerRedraw() {
             uploadedImages.forEach(pinObj => {
@@ -684,17 +994,79 @@
             inputBoard.value = batch.board || '';
             inputBaseUrl.value = batch.base_url || batch.baseUrl || '';
 
+            // Clear custom niches first
+            customNiches = [];
+            activeUploadNicheId = 'default_niche';
+
+            const batchDest = batch.dest_url || batch.destUrl || '';
+            const batchBoard = batch.board || '';
+
+            // Reconstruct niches from pins
             if (pins && pins.length > 0) {
-                clonedPinTemplates = pins.map(p => ({
-                    topLine1: p.top_line_1 || p.topLine1 || '',
-                    topLine2: p.top_line_2 || p.topLine2 || '',
-                    cardTitle: p.card_title || p.cardTitle || '',
-                    cardSubtitle: p.card_subtitle || p.cardSubtitle || '',
-                    description: p.description || '',
-                    imagePath: p.image_path || null,
-                    filled: false,
-                    fileId: null
-                }));
+                pins.forEach(p => {
+                    const pDest = p.dest_url || p.destUrl || '';
+                    const pBoard = p.board || '';
+                    if ((pDest && pDest !== batchDest) || (pBoard && pBoard !== batchBoard)) {
+                        let niche = customNiches.find(n => n.destUrl === pDest && n.board === pBoard);
+                        if (!niche) {
+                            const newId = 'niche_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                            let nicheName = pBoard;
+                            if (!nicheName && pDest) {
+                                try {
+                                    nicheName = new URL(pDest).pathname.split('/').filter(Boolean).pop() || 'Nicho';
+                                } catch(e) {
+                                    nicheName = 'Nicho Link';
+                                }
+                            }
+                            nicheName = nicheName || 'Categoria';
+                            customNiches.push({
+                                id: newId,
+                                name: nicheName,
+                                keyword: batch.keyword || '',
+                                destUrl: pDest,
+                                board: pBoard
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (customNiches.length > 0) {
+                if (inputMultiNiche) inputMultiNiche.checked = true;
+                if (multiNicheContainer) multiNicheContainer.classList.remove('hidden');
+                if (wrapperEditNiche) wrapperEditNiche.classList.remove('hidden');
+            } else {
+                if (inputMultiNiche) inputMultiNiche.checked = false;
+                if (multiNicheContainer) multiNicheContainer.classList.add('hidden');
+                if (wrapperEditNiche) wrapperEditNiche.classList.add('hidden');
+            }
+            renderNiches();
+
+            if (pins && pins.length > 0) {
+                clonedPinTemplates = pins.map(p => {
+                    const pDest = p.dest_url || p.destUrl || '';
+                    const pBoard = p.board || '';
+                    let nid = 'default_niche';
+                    if (customNiches.length > 0) {
+                        const matchedNiche = customNiches.find(n => n.destUrl === pDest && n.board === pBoard);
+                        if (matchedNiche) {
+                            nid = matchedNiche.id;
+                        }
+                    }
+                    return {
+                        topLine1: p.top_line_1 || p.topLine1 || '',
+                        topLine2: p.top_line_2 || p.topLine2 || '',
+                        cardTitle: p.card_title || p.cardTitle || '',
+                        cardSubtitle: p.card_subtitle || p.cardSubtitle || '',
+                        description: p.description || '',
+                        imagePath: p.image_path || null,
+                        destUrl: pDest,
+                        board: pBoard,
+                        nicheId: nid,
+                        filled: false,
+                        fileId: null
+                    };
+                });
 
                 renderTemplates();
 
@@ -717,6 +1089,9 @@
                                 cardTitle: template.cardTitle,
                                 cardSubtitle: template.cardSubtitle,
                                 description: template.description,
+                                destUrl: template.destUrl,
+                                board: template.board,
+                                nicheId: template.nicheId || 'default_niche',
                                 imgElement: null,
                                 canvas: document.createElement('canvas'),
                                 templateIndex: i
@@ -829,7 +1204,19 @@
         async function handleFiles(files) {
             if (!files.length) return;
             
-            const keyword = inputKeyword.value.trim();
+            let keyword = inputKeyword.value.trim();
+            let destUrl = inputDestUrl.value.trim();
+            let board = inputBoard.value.trim();
+
+            if (inputMultiNiche.checked && activeUploadNicheId !== 'default_niche') {
+                const activeNiche = customNiches.find(n => n.id === activeUploadNicheId);
+                if (activeNiche) {
+                    keyword = activeNiche.keyword || keyword;
+                    destUrl = activeNiche.destUrl || destUrl;
+                    board = activeNiche.board || board;
+                }
+            }
+            
             if (!keyword) {
                 alert(t('alert_no_keyword'));
                 fileInput.value = '';
@@ -869,6 +1256,9 @@
                         cardTitle: unfilledTemplate.cardTitle,
                         cardSubtitle: unfilledTemplate.cardSubtitle,
                         description: unfilledTemplate.description,
+                        destUrl: unfilledTemplate.destUrl || destUrl,
+                        board: unfilledTemplate.board || board,
+                        nicheId: unfilledTemplate.nicheId || (inputMultiNiche.checked ? activeUploadNicheId : 'default_niche'),
                         imgElement: null,
                         canvas: document.createElement('canvas'),
                         templateIndex: clonedPinTemplates.indexOf(unfilledTemplate)
@@ -916,6 +1306,9 @@
                         file,
                         originalSrc,
                         ...data,
+                        destUrl: destUrl,
+                        board: board,
+                        nicheId: inputMultiNiche.checked ? activeUploadNicheId : 'default_niche',
                         imgElement: null,
                         canvas: document.createElement('canvas')
                     };
@@ -1079,6 +1472,7 @@
 
             /* Read active customization settings from DOM with defaults */
             const theme = document.getElementById('batch-layout-theme') ? document.getElementById('batch-layout-theme').value : 'default';
+            const layoutPreset = document.getElementById('batch-layout-preset') ? document.getElementById('batch-layout-preset').value : 'floating_card';
             const logoType = document.getElementById('batch-logo-type') ? document.getElementById('batch-logo-type').value : 'none';
             const logoTextVal = document.getElementById('batch-logo-text') ? document.getElementById('batch-logo-text').value : '';
             const logoPos = document.getElementById('batch-logo-position') ? document.getElementById('batch-logo-position').value : 'card';
@@ -1122,45 +1516,113 @@
                 btnShadowColor = 'rgba(183, 0, 26, 0.3)';
             }
 
-            /* 1. Draw photo in Full-Bleed (complete background 1000x1500 px) */
+            /* 1. Draw photo based on preset layout crop bounds */
             const imgWidth = img.naturalWidth || img.width;
             const imgHeight = img.naturalHeight || img.height;
-            
-            const targetWidth = 1000;
-            const targetHeight = 1500;
-            
             const imgRatio = imgWidth / imgHeight;
-            const targetRatio = targetWidth / targetHeight;
-            
-            let sourceX = 0;
-            let sourceY = 0;
-            let sourceWidth = imgWidth;
-            let sourceHeight = imgHeight;
-            
-            if (imgRatio > targetRatio) {
-                sourceWidth = imgHeight * targetRatio;
-                sourceX = (imgWidth - sourceWidth) / 2;
+
+            if (layoutPreset === 'split_banner') {
+                // Image on top 70% (1000x1050 px)
+                const targetWidth = 1000;
+                const targetHeight = 1050;
+                const targetRatio = targetWidth / targetHeight;
+                
+                let sourceX = 0;
+                let sourceY = 0;
+                let sourceWidth = imgWidth;
+                let sourceHeight = imgHeight;
+                
+                if (imgRatio > targetRatio) {
+                    sourceWidth = imgHeight * targetRatio;
+                    sourceX = (imgWidth - sourceWidth) / 2;
+                } else {
+                    sourceHeight = imgWidth / targetRatio;
+                    sourceY = (imgHeight - sourceHeight) / 2;
+                }
+                ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
+            } else if (layoutPreset === 'bold_top') {
+                // Image on bottom 70% (1000x1080 px, y = 420)
+                const targetWidth = 1000;
+                const targetHeight = 1080;
+                const targetRatio = targetWidth / targetHeight;
+                
+                let sourceX = 0;
+                let sourceY = 0;
+                let sourceWidth = imgWidth;
+                let sourceHeight = imgHeight;
+                
+                if (imgRatio > targetRatio) {
+                    sourceWidth = imgHeight * targetRatio;
+                    sourceX = (imgWidth - sourceWidth) / 2;
+                } else {
+                    sourceHeight = imgWidth / targetRatio;
+                    sourceY = (imgHeight - sourceHeight) / 2;
+                }
+                ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 420, targetWidth, targetHeight);
             } else {
-                sourceHeight = imgWidth / targetRatio;
-                sourceY = (imgHeight - sourceHeight) / 2;
+                // Full breed 1000x1500 px
+                const targetWidth = 1000;
+                const targetHeight = 1500;
+                const targetRatio = targetWidth / targetHeight;
+                
+                let sourceX = 0;
+                let sourceY = 0;
+                let sourceWidth = imgWidth;
+                let sourceHeight = imgHeight;
+                
+                if (imgRatio > targetRatio) {
+                    sourceWidth = imgHeight * targetRatio;
+                    sourceX = (imgWidth - sourceWidth) / 2;
+                } else {
+                    sourceHeight = imgWidth / targetRatio;
+                    sourceY = (imgHeight - sourceHeight) / 2;
+                }
+                ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
             }
-            
-            ctx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, targetWidth, targetHeight);
 
-            /* 2. Top gradient mask for readability */
-            const topGrad = ctx.createLinearGradient(0, 0, 0, 320);
-            topGrad.addColorStop(0, gradientStartColor);
-            topGrad.addColorStop(0.7, gradientStartColor.replace('0.85', '0.5').replace('0.9', '0.5'));
-            topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            ctx.fillStyle = topGrad;
-            ctx.fillRect(0, 0, 1000, 320);
+            /* 2. Top solid colors or gradient masks */
+            if (layoutPreset === 'bold_top') {
+                // Draw solid rectangle at top (0, 0, 1000, 420)
+                ctx.fillStyle = cardBgColor;
+                ctx.fillRect(0, 0, 1000, 420);
+                
+                // Draw separating colored bar (8px)
+                ctx.fillStyle = pillBadgeColor;
+                ctx.fillRect(0, 412, 1000, 8);
+            } else {
+                // Gradient mask top
+                const topGrad = ctx.createLinearGradient(0, 0, 0, 320);
+                topGrad.addColorStop(0, gradientStartColor);
+                topGrad.addColorStop(0.7, gradientStartColor.replace('0.85', '0.5').replace('0.9', '0.5'));
+                topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = topGrad;
+                ctx.fillRect(0, 0, 1000, 320);
+            }
 
-            /* 3. Bottom gradient mask for readability */
-            const bottomGrad = ctx.createLinearGradient(0, 1500, 0, 1100);
-            bottomGrad.addColorStop(0, 'rgba(11, 22, 37, 0.7)');
-            bottomGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            ctx.fillStyle = bottomGrad;
-            ctx.fillRect(0, 1100, 1000, 400);
+            /* 3. Bottom solid colors or gradient masks */
+            if (layoutPreset === 'split_banner') {
+                // Draw solid rectangle at bottom (0, 1050, 1000, 450)
+                ctx.fillStyle = cardBgColor;
+                ctx.fillRect(0, 1050, 1000, 450);
+                
+                // Draw separating colored bar (8px)
+                ctx.fillStyle = pillBadgeColor;
+                ctx.fillRect(0, 1042, 1000, 8);
+            } else if (layoutPreset === 'minimal_clean') {
+                // Stronger gradient mask bottom to ensure text readability
+                const bottomGrad = ctx.createLinearGradient(0, 1500, 0, 800);
+                bottomGrad.addColorStop(0, 'rgba(11, 22, 37, 0.85)');
+                bottomGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = bottomGrad;
+                ctx.fillRect(0, 800, 1000, 700);
+            } else {
+                // Standard bottom gradient mask
+                const bottomGrad = ctx.createLinearGradient(0, 1500, 0, 1100);
+                bottomGrad.addColorStop(0, 'rgba(11, 22, 37, 0.7)');
+                bottomGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = bottomGrad;
+                ctx.fillRect(0, 1100, 1000, 400);
+            }
 
             /* 4. Draw pill badge for topLine1 */
             ctx.font = 'bold 24px Inter, sans-serif';
@@ -1169,9 +1631,10 @@
             
             const badgeWidth = textWidth + 40; /* padding left/right */
             const badgeHeight = 48;
-            const badgeX = (1000 - badgeWidth) / 2;
-            const badgeY = 40;
             const badgeRadius = 24;
+            
+            let badgeX = (1000 - badgeWidth) / 2;
+            let badgeY = (layoutPreset === 'bold_top') ? 80 : 40;
             
             ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
             ctx.shadowBlur = 8;
@@ -1195,15 +1658,21 @@
             ctx.fillText(badgeText, 500, badgeY + badgeHeight / 2 + 1);
 
             /* 5. Draw bold title for topLine2 (the main keyword) */
-            ctx.fillStyle = keywordColor;
+            let hookY = (layoutPreset === 'bold_top') ? 220 : 125;
+            
+            if (layoutPreset === 'bold_top') {
+                ctx.fillStyle = cardTitleColor; // use dark color for top solid banner
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+            } else {
+                ctx.fillStyle = keywordColor;
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+                ctx.shadowBlur = 10;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 2;
+            }
             ctx.font = '900 64px Inter, sans-serif';
-            
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
-            ctx.shadowBlur = 10;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 2;
-            
-            ctx.fillText(pinObj.topLine2.toUpperCase(), 500, 125);
+            ctx.fillText(pinObj.topLine2.toUpperCase(), 500, hookY);
             
             /* Reset shadow */
             ctx.shadowColor = 'transparent';
@@ -1211,70 +1680,155 @@
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
 
-            /* 6. Draw floating premium card in the lower middle */
-            const cardWidth = 840;
-            const cardHeight = 280;
-            const cardX = (1000 - cardWidth) / 2;
-            const cardY = 960;
-            const cardRadius = 24;
-            
-            ctx.shadowColor = 'rgba(15, 23, 42, 0.12)';
-            ctx.shadowBlur = 24;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 10;
-            
-            ctx.fillStyle = cardBgColor;
-            ctx.beginPath();
-            ctx.roundRect(cardX, cardY, cardWidth, cardHeight, cardRadius);
-            ctx.fill();
-            
-            /* Soft elegant border */
-            ctx.strokeStyle = cardBorderColor;
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            /* Reset shadow */
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
+            /* Define Card Bounds for Logo position checks */
+            let cardY = 960;
+            let cardHeight = 280;
 
-            /* 7. Draw card text with modern hierarchy */
-            /* Title (cardTitle) */
-            ctx.fillStyle = cardTitleColor;
-            ctx.font = 'bold 46px Inter, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            const titleLines = wrapText(ctx, pinObj.cardTitle, 760);
-            let titleY = cardY + 75;
-            if (titleLines.length > 1) {
-                titleY = cardY + 60;
+            /* 6. Draw Content Text & Containers based on Presets */
+            if (layoutPreset === 'split_banner') {
+                // Editorial Split Layout: Draw text directly in bottom solid block
+                ctx.fillStyle = cardTitleColor;
+                ctx.font = 'bold 46px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const titleLines = wrapText(ctx, pinObj.cardTitle, 880);
+                let titleY = 1120;
+                titleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, titleY + (idx * 55));
+                });
+
+                ctx.fillStyle = cardSubtitleColor;
+                ctx.font = '500 28px Inter, sans-serif';
+                const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 880);
+                let subY = titleY + (titleLines.length * 55) + 15;
+                subtitleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, subY + (idx * 38));
+                });
+            } else if (layoutPreset === 'minimal_clean') {
+                // Minimal Overlay Layout: Text directly on photo with dropshadows
+                ctx.save();
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+                ctx.shadowBlur = 12;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 4;
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 46px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const titleLines = wrapText(ctx, pinObj.cardTitle, 820);
+                let titleY = 1000;
+                titleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, titleY + (idx * 58));
+                });
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '500 28px Inter, sans-serif';
+                const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 820);
+                let subY = titleY + (titleLines.length * 58) + 15;
+                subtitleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, subY + (idx * 40));
+                });
+                ctx.restore();
+            } else if (layoutPreset === 'bold_top') {
+                // Bold Top Layout: Draw smaller card on bottom of image
+                cardY = 1020;
+                cardHeight = 240;
+                const cardWidth = 840;
+                const cardX = (1000 - cardWidth) / 2;
+                const cardRadius = 24;
+                
+                ctx.shadowColor = 'rgba(15, 23, 42, 0.12)';
+                ctx.shadowBlur = 24;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 10;
+                
+                ctx.fillStyle = cardBgColor;
+                ctx.beginPath();
+                ctx.roundRect(cardX, cardY, cardWidth, cardHeight, cardRadius);
+                ctx.fill();
+                
+                ctx.strokeStyle = cardBorderColor;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                
+                ctx.fillStyle = cardTitleColor;
+                ctx.font = 'bold 42px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const titleLines = wrapText(ctx, pinObj.cardTitle, 760);
+                let titleY = cardY + 65;
+                titleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, titleY + (idx * 50));
+                });
+
+                ctx.fillStyle = cardSubtitleColor;
+                ctx.font = '500 26px Inter, sans-serif';
+                const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 760);
+                let subY = titleY + (titleLines.length * 50) + 12;
+                subtitleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, subY + (idx * 34));
+                });
+            } else {
+                // Default Floating Card Layout
+                const cardWidth = 840;
+                const cardX = (1000 - cardWidth) / 2;
+                const cardRadius = 24;
+                
+                ctx.shadowColor = 'rgba(15, 23, 42, 0.12)';
+                ctx.shadowBlur = 24;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 10;
+                
+                ctx.fillStyle = cardBgColor;
+                ctx.beginPath();
+                ctx.roundRect(cardX, cardY, cardWidth, cardHeight, cardRadius);
+                ctx.fill();
+                
+                ctx.strokeStyle = cardBorderColor;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                
+                ctx.fillStyle = cardTitleColor;
+                ctx.font = 'bold 46px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                const titleLines = wrapText(ctx, pinObj.cardTitle, 760);
+                let titleY = cardY + 75;
+                if (titleLines.length > 1) {
+                    titleY = cardY + 60;
+                }
+                titleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, titleY + (idx * 55));
+                });
+
+                ctx.fillStyle = cardSubtitleColor;
+                ctx.font = '500 28px Inter, sans-serif';
+                const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 760);
+                let subY = titleY + (titleLines.length * 55) + 15;
+                if (titleLines.length > 1) {
+                    subY = titleY + (titleLines.length * 52) + 10;
+                }
+                subtitleLines.forEach((line, idx) => {
+                    ctx.fillText(line, 500, subY + (idx * 38));
+                });
             }
-            
-            titleLines.forEach((line, idx) => {
-                ctx.fillText(line, 500, titleY + (idx * 55));
-            });
 
-            /* Subtitle (cardSubtitle) */
-            ctx.fillStyle = cardSubtitleColor;
-            ctx.font = '500 28px Inter, sans-serif';
-            
-            const subtitleLines = wrapText(ctx, pinObj.cardSubtitle, 760);
-            let subY = titleY + (titleLines.length * 55) + 15;
-            if (titleLines.length > 1) {
-                subY = titleY + (titleLines.length * 52) + 10;
-            }
-            
-            subtitleLines.forEach((line, idx) => {
-                ctx.fillText(line, 500, subY + (idx * 38));
-            });
-
-            /* 8. Draw floating pill-shaped button in the footer */
+            /* 7. Draw CTA button in footer */
             const btnWidth = 700;
             const btnHeight = 76;
             const btnX = (1000 - btnWidth) / 2;
-            const btnY = 1340;
+            let btnY = (layoutPreset === 'split_banner') ? 1380 : 1340;
             const btnRadius = 38;
             
             ctx.shadowColor = btnShadowColor;
@@ -1297,7 +1851,7 @@
             ctx.font = 'bold 28px Inter, sans-serif';
             ctx.fillText(t('canvas_cta'), 500, btnY + btnHeight / 2 + 2);
 
-            /* 9. Draw Custom Watermark / Logo if enabled */
+            /* 8. Draw Custom Watermark / Logo if enabled */
             if (logoType !== 'none') {
                 ctx.save();
                 
@@ -1309,8 +1863,14 @@
                     // Position at top center, above badge (y = 22)
                     logoCenterY = 22;
                 } else if (logoPos === 'card') {
-                    // Positioned at the bottom center inside the floating card
-                    logoCenterY = cardY + cardHeight - 32;
+                    // Positioned at the bottom center inside the content container/card
+                    if (layoutPreset === 'split_banner') {
+                        logoCenterY = 1330;
+                    } else if (layoutPreset === 'minimal_clean') {
+                        logoCenterY = btnY - 50;
+                    } else {
+                        logoCenterY = cardY + cardHeight - 32;
+                    }
                 } else if (logoPos === 'bottom') {
                     // Positioned above the CTA button
                     logoCenterY = btnY - 35;
@@ -1322,7 +1882,7 @@
                     let textOpacity = 0.65;
                     let textFont = 'bold 20px Inter, sans-serif';
                     
-                    if (logoPos === 'card') {
+                    if (logoPos === 'card' && layoutPreset !== 'minimal_clean') {
                         textColor = cardSubtitleColor;
                         textOpacity = 0.8;
                         textFont = 'bold 18px Inter, sans-serif';
@@ -1355,13 +1915,14 @@
                     const x = logoCenterX - targetW / 2;
                     const y = logoCenterY - targetH / 2;
                     
-                    ctx.globalAlpha = logoPos === 'card' ? 0.95 : 0.8;
+                    ctx.globalAlpha = (logoPos === 'card' && layoutPreset !== 'minimal_clean') ? 0.95 : 0.8;
                     ctx.drawImage(logoImgElement, x, y, targetW, targetH);
                 }
                 
                 ctx.restore();
             }
         }
+
 
         function wrapText(ctx, text, maxWidth) {
             const words = text.split(' ');
@@ -1403,26 +1964,122 @@
                 return;
             }
 
-            uploadedImages.forEach(pinObj => {
-                const card = document.createElement('div');
-                card.className = "bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant group relative transition-transform hover:-translate-y-1";
-                
-                /* Convert canvas cache to image src for lightweight DOM */
-                const dataUrl = pinObj.canvas.toDataURL('image/jpeg', 0.85);
-                
-                card.innerHTML = `
-                    <img class="w-full aspect-[2/3] object-cover" src="${dataUrl}"/>
-                    <div class="absolute inset-0 bg-on-surface/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <button class="p-2 bg-white rounded-full text-error shadow-lg active:scale-95 btn-delete" data-id="${pinObj.id}">
-                            <span class="material-symbols-outlined">delete</span>
-                        </button>
-                        <button class="p-2 bg-white rounded-full text-primary shadow-lg active:scale-95 btn-edit" data-id="${pinObj.id}">
-                            <span class="material-symbols-outlined">edit</span>
-                        </button>
-                    </div>
-                `;
-                previewGrid.appendChild(card);
-            });
+            const isMultiNicheActive = inputMultiNiche && inputMultiNiche.checked;
+
+            if (isMultiNicheActive) {
+                // Group pins by nicheId
+                const groups = {};
+                groups['default_niche'] = [];
+                customNiches.forEach(n => {
+                    groups[n.id] = [];
+                });
+
+                uploadedImages.forEach(pin => {
+                    const nid = pin.nicheId || 'default_niche';
+                    if (!groups[nid]) groups[nid] = [];
+                    groups[nid].push(pin);
+                });
+
+                // Render each group
+                Object.keys(groups).forEach(nid => {
+                    const pinsInGroup = groups[nid];
+                    let groupName = "Geral (Padrão)";
+                    let groupInfo = `Pasta: ${inputBoard.value.trim() || '(Padrão)'} • Link: ${inputDestUrl.value.trim() || '(Padrão)'}`;
+                    
+                    if (nid !== 'default_niche') {
+                        const niche = customNiches.find(n => n.id === nid);
+                        if (niche) {
+                            groupName = niche.name;
+                            groupInfo = `Pasta: ${niche.board || '(Padrão)'} • Link: ${niche.destUrl}`;
+                        } else {
+                            return; // deleted niche, skip
+                        }
+                    }
+
+                    // Render group header
+                    const header = document.createElement('div');
+                    header.className = "col-span-full mt-6 first:mt-0 p-4 rounded-xl bg-surface-container-low border border-outline-variant/30 flex items-center justify-between";
+                    header.dataset.nicheId = nid;
+                    header.innerHTML = `
+                        <div>
+                            <h4 class="font-headline-md text-sm font-bold text-primary flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">folder_open</span>
+                                <span>${groupName}</span>
+                                <span class="text-xs text-secondary font-normal font-body-sm">(${pinsInGroup.length} pins)</span>
+                            </h4>
+                            <p class="text-[11px] text-secondary font-normal mt-0.5">${groupInfo}</p>
+                        </div>
+                        <div class="text-[10px] text-secondary font-medium tracking-wider uppercase border border-outline-variant rounded-full px-2 py-0.5 bg-surface-container-lowest">
+                            Nicho
+                        </div>
+                    `;
+                    
+                    // Allow dropping onto headers to move to this niche
+                    header.addEventListener('dragover', (e) => e.preventDefault());
+                    header.addEventListener('dragenter', (e) => {
+                        e.preventDefault();
+                        header.classList.add('bg-primary/5', 'border-primary');
+                    });
+                    header.addEventListener('dragleave', () => {
+                        header.classList.remove('bg-primary/5', 'border-primary');
+                    });
+                    header.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        header.classList.remove('bg-primary/5', 'border-primary');
+                        const sourceId = e.dataTransfer.getData('text/plain');
+                        const movedPin = uploadedImages.find(p => p.id === sourceId);
+                        if (movedPin && movedPin.nicheId !== nid) {
+                            movedPin.nicheId = nid;
+                            
+                            // Retrieve new details
+                            const targetNiche = customNiches.find(n => n.id === nid);
+                            movedPin.destUrl = targetNiche ? targetNiche.destUrl : inputDestUrl.value.trim();
+                            movedPin.board = targetNiche ? targetNiche.board : inputBoard.value.trim();
+                            
+                            // Re-draw canvas for this pin
+                            drawPinCanvas(movedPin.imgElement, movedPin, movedPin.canvas);
+                            
+                            renderTemplates();
+                            renderQueue();
+                        }
+                    });
+
+                    previewGrid.appendChild(header);
+
+                    if (pinsInGroup.length === 0) {
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.className = "col-span-full py-4 text-center text-xs text-secondary border border-dashed border-outline-variant/30 rounded-xl bg-surface-container-lowest/50";
+                        emptyDiv.innerText = "Nenhum pin nesta categoria. Arraste pins aqui ou selecione a categoria na sidebar e faça upload.";
+                        
+                        // Allow dropping onto empty message
+                        emptyDiv.addEventListener('dragover', (e) => e.preventDefault());
+                        emptyDiv.addEventListener('drop', (e) => {
+                            e.preventDefault();
+                            const sourceId = e.dataTransfer.getData('text/plain');
+                            const movedPin = uploadedImages.find(p => p.id === sourceId);
+                            if (movedPin && movedPin.nicheId !== nid) {
+                                movedPin.nicheId = nid;
+                                const targetNiche = customNiches.find(n => n.id === nid);
+                                movedPin.destUrl = targetNiche ? targetNiche.destUrl : inputDestUrl.value.trim();
+                                movedPin.board = targetNiche ? targetNiche.board : inputBoard.value.trim();
+                                drawPinCanvas(movedPin.imgElement, movedPin, movedPin.canvas);
+                                renderTemplates();
+                                renderQueue();
+                            }
+                        });
+                        previewGrid.appendChild(emptyDiv);
+                    } else {
+                        pinsInGroup.forEach(pinObj => {
+                            renderPinCard(pinObj);
+                        });
+                    }
+                });
+            } else {
+                // Render unified grid
+                uploadedImages.forEach(pinObj => {
+                    renderPinCard(pinObj);
+                });
+            }
 
             /* Connect button actions */
             document.querySelectorAll('.btn-delete').forEach(btn => {
@@ -1438,6 +2095,103 @@
                     openEditModal(id);
                 });
             });
+        }
+
+        function renderPinCard(pinObj) {
+            const card = document.createElement('div');
+            card.className = "bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant group relative transition-transform hover:-translate-y-1 cursor-grab active:cursor-grabbing";
+            card.draggable = true;
+            card.dataset.id = pinObj.id;
+            
+            /* Convert canvas cache to image src for lightweight DOM */
+            const dataUrl = pinObj.canvas.toDataURL('image/jpeg', 0.85);
+            
+            // Add niche badge if multi-niche active
+            let badgeHtml = '';
+            if (inputMultiNiche && inputMultiNiche.checked) {
+                let nicheName = 'Geral';
+                if (pinObj.nicheId && pinObj.nicheId !== 'default_niche') {
+                    const niche = customNiches.find(n => n.id === pinObj.nicheId);
+                    if (niche) nicheName = niche.name;
+                }
+                badgeHtml = `
+                    <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[9px] font-bold bg-primary/95 text-white shadow-md z-10 truncate max-w-[120px]">
+                        ${nicheName}
+                    </span>
+                `;
+            }
+
+            card.innerHTML = `
+                ${badgeHtml}
+                <img class="w-full aspect-[2/3] object-cover" src="${dataUrl}"/>
+                <div class="absolute inset-0 bg-on-surface/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <button class="p-2 bg-white rounded-full text-error shadow-lg active:scale-95 btn-delete" data-id="${pinObj.id}">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                    <button class="p-2 bg-white rounded-full text-primary shadow-lg active:scale-95 btn-edit" data-id="${pinObj.id}">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                </div>
+            `;
+
+            /* Drag and Drop event listeners */
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', pinObj.id);
+                card.classList.add('opacity-40', 'border-primary', 'border-dashed');
+            });
+
+            card.addEventListener('dragend', () => {
+                card.classList.remove('opacity-40', 'border-primary', 'border-dashed');
+                document.querySelectorAll('#preview-grid > div').forEach(el => {
+                    el.classList.remove('bg-primary/5', 'border-primary');
+                });
+            });
+
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            card.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                card.classList.add('bg-primary/5', 'border-primary');
+            });
+
+            card.addEventListener('dragleave', () => {
+                card.classList.remove('bg-primary/5', 'border-primary');
+            });
+
+            card.addEventListener('drop', (e) => {
+                e.preventDefault();
+                card.classList.remove('bg-primary/5', 'border-primary');
+                
+                const sourceId = e.dataTransfer.getData('text/plain');
+                const targetId = pinObj.id;
+                
+                if (sourceId !== targetId) {
+                    const sourceIndex = uploadedImages.findIndex(p => p.id === sourceId);
+                    const targetIndex = uploadedImages.findIndex(p => p.id === targetId);
+                    
+                    if (sourceIndex > -1 && targetIndex > -1) {
+                        const [movedPin] = uploadedImages.splice(sourceIndex, 1);
+                        
+                        // If moving in multi-niche grouped mode, reassign niche to match destination block
+                        if (inputMultiNiche && inputMultiNiche.checked) {
+                            movedPin.nicheId = pinObj.nicheId || 'default_niche';
+                            const targetNiche = customNiches.find(n => n.id === pinObj.nicheId);
+                            movedPin.destUrl = targetNiche ? targetNiche.destUrl : inputDestUrl.value.trim();
+                            movedPin.board = targetNiche ? targetNiche.board : inputBoard.value.trim();
+                            drawPinCanvas(movedPin.imgElement, movedPin, movedPin.canvas);
+                        }
+
+                        uploadedImages.splice(targetIndex, 0, movedPin);
+                        
+                        renderTemplates();
+                        renderQueue();
+                    }
+                }
+            });
+
+            previewGrid.appendChild(card);
         }
 
         function deletePin(id) {
@@ -1477,6 +2231,11 @@
             editCardSub.value = pinObj.cardSubtitle;
             editDesc.value = pinObj.description;
 
+            // Populate Niche selection dropdown in Modal
+            if (editNiche) {
+                editNiche.value = pinObj.nicheId || 'default_niche';
+            }
+
             /* Draw to modal preview canvas */
             const modalCtx = modalCanvas.getContext('2d');
             modalCanvas.width = 1000;
@@ -1512,6 +2271,18 @@
                 pinObj.description = editDesc.value;
                 pinObj.is_edited = true;
 
+                // Save niche change
+                if (editNiche) {
+                    const oldNid = pinObj.nicheId;
+                    const newNid = editNiche.value;
+                    if (oldNid !== newNid) {
+                        pinObj.nicheId = newNid;
+                        const targetNiche = customNiches.find(n => n.id === newNid);
+                        pinObj.destUrl = targetNiche ? targetNiche.destUrl : inputDestUrl.value.trim();
+                        pinObj.board = targetNiche ? targetNiche.board : inputBoard.value.trim();
+                    }
+                }
+
                 /* Redraw actual cached canvas */
                 drawPinCanvas(pinObj.imgElement, pinObj, pinObj.canvas);
                 renderQueue();
@@ -1524,6 +2295,7 @@
             editModal.classList.add('hidden');
             activeEditId = null;
         }
+
 
         /* Clear whole queue */
         btnClearQueue.addEventListener('click', () => {
@@ -1641,19 +2413,31 @@
                 }
                 usedTitles.add(uniqueTitle.toLowerCase());
 
+                // Determine board and destUrl for this pin
+                let currentDestUrl = pinObj.destUrl || destUrl;
+                let currentBoard = pinObj.board || board;
+
+                if (inputMultiNiche.checked && pinObj.nicheId && pinObj.nicheId !== 'default_niche') {
+                    const niche = customNiches.find(n => n.id === pinObj.nicheId);
+                    if (niche) {
+                        currentDestUrl = pinObj.destUrl || niche.destUrl || destUrl;
+                        currentBoard = pinObj.board || niche.board || board;
+                    }
+                }
+
                 // Calculate dynamic tracking URL (to bypass Pinterest duplicate filter)
-                let pinDestUrl = destUrl;
+                let pinDestUrl = currentDestUrl;
                 if (enableUtm) {
                     try {
-                        const urlObj = new URL(destUrl);
+                        const urlObj = new URL(currentDestUrl);
                         urlObj.searchParams.set('utm_source', 'pinterest');
                         urlObj.searchParams.set('utm_medium', 'social');
                         urlObj.searchParams.set('utm_campaign', `pinflow_lote_${batchId}`);
                         urlObj.searchParams.set('utm_content', `pin_${String(i + 1).padStart(2, '0')}`);
                         pinDestUrl = urlObj.toString();
                     } catch (e) {
-                        const separator = destUrl.includes('?') ? '&' : '?';
-                        pinDestUrl = `${destUrl}${separator}utm_source=pinterest&utm_medium=social&utm_campaign=pinflow_lote_${batchId}&utm_content=pin_${String(i + 1).padStart(2, '0')}`;
+                        const separator = currentDestUrl.includes('?') ? '&' : '?';
+                        pinDestUrl = `${currentDestUrl}${separator}utm_source=pinterest&utm_medium=social&utm_campaign=pinflow_lote_${batchId}&utm_content=pin_${String(i + 1).padStart(2, '0')}`;
                     }
                 }
 
@@ -1675,7 +2459,7 @@
                 csvRows.push([
                     uniqueTitle,
                     cleanCSVVal(mediaUrl),
-                    cleanCSVVal(board),
+                    cleanCSVVal(currentBoard),
                     "", // Thumbnail
                     cleanCSVVal(pinObj.description),
                     cleanCSVVal(pinDestUrl),
@@ -1723,6 +2507,17 @@
                 const genBlob = await new Promise(resolve => pin.canvas.toBlob(resolve, 'image/jpeg', 0.9));
                 uploadZip.file(genFilename, genBlob);
                 
+                let pinDestUrlVal = pin.destUrl || destUrl;
+                let pinBoardVal = pin.board || board;
+
+                if (inputMultiNiche.checked && pin.nicheId && pin.nicheId !== 'default_niche') {
+                    const niche = customNiches.find(n => n.id === pin.nicheId);
+                    if (niche) {
+                        pinDestUrlVal = pin.destUrl || niche.destUrl || destUrl;
+                        pinBoardVal = pin.board || niche.board || board;
+                    }
+                }
+
                 pinsMetadata.push({
                     topLine1: pin.topLine1,
                     topLine2: pin.topLine2,
@@ -1731,7 +2526,9 @@
                     description: pin.description,
                     is_new: !!pin.file,
                     originalExt: originalExt,
-                    serverImageUrl: pin.serverImageUrl || null
+                    serverImageUrl: pin.serverImageUrl || null,
+                    destUrl: pinDestUrlVal,
+                    board: pinBoardVal
                 });
             }
             

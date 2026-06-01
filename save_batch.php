@@ -168,7 +168,10 @@ try {
         }
 
         // Insert pin record
-        $stmtPin = $pdo->prepare("INSERT INTO pins (id, batch_id, top_line_1, top_line_2, card_title, card_subtitle, description, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $pinDestUrl = isset($pin['dest_url']) ? $pin['dest_url'] : (isset($pin['destUrl']) ? $pin['destUrl'] : null);
+        $pinBoard = isset($pin['board']) ? $pin['board'] : null;
+
+        $stmtPin = $pdo->prepare("INSERT INTO pins (id, batch_id, top_line_1, top_line_2, card_title, card_subtitle, description, image_path, dest_url, board) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmtPin->execute([
             $pinId,
             $batchId,
@@ -177,9 +180,12 @@ try {
             $pin['cardTitle'],
             $pin['cardSubtitle'],
             $pin['description'],
-            $finalImagePath
+            $finalImagePath,
+            $pinDestUrl,
+            $pinBoard
         ]);
     }
+
 
     $pdo->commit();
     echo json_encode(['success' => true]);
